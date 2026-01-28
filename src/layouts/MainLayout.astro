@@ -1,0 +1,38 @@
+---
+import Navbar from '../components/Navbar.vue';
+import Footer from '../components/Footer.vue';
+import ToastContainer from '../components/ui/ToastContainer.vue';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = 'ISUZU STC - โชว์รูมรถยนต์อีซูซุ',
+  description = 'ศูนย์จำหน่ายรถยนต์อีซูซุ บริการครบวงจร ทั้งขาย บริการหลังการขาย และอะไหล่แท้'
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-slate-900 text-white font-sans antialiased flex flex-col min-h-screen overflow-x-hidden">
+    <Navbar client:load />
+    <main class="flex-grow">
+      <slot />
+    </main>
+    <ToastContainer client:load />
+    <Footer client:visible />
+  </body>
+</html>

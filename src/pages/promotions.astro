@@ -1,0 +1,41 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import PromotionPage from "../components/PromotionPage.vue";
+---
+
+<MainLayout title="โปรโมชั่นพิเศษ - ISUZU STC">
+    <div class="bg-gray-900 min-h-screen pt-24 pb-16 relative overflow-hidden">
+        <!-- Background Accents -->
+        <div
+            class="absolute top-0 right-0 w-[500px] h-[500px] bg-isuzu-red/5 blur-[120px] rounded-full -mr-64 -mt-64"
+        >
+        </div>
+        <div
+            class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-isuzu-red/5 blur-[120px] rounded-full -ml-64 -mb-64"
+        >
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="text-center mb-16">
+                <span
+                    class="text-isuzu-red font-bold tracking-widest uppercase text-sm mb-4 block"
+                    >Exclusive Deals</span
+                >
+                <h1
+                    class="text-4xl md:text-6xl font-black text-white mb-6 uppercase leading-tight"
+                >
+                    โปรโมชั่น<span class="text-isuzu-red">พิเศษ</span>
+                </h1>
+                <p
+                    class="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
+                >
+                    พบกับข้อเสนอที่คุ้มค่าที่สุดจากอีซูซุสงวนไทยเชียงราย
+                    ทั้งรถใหม่ โปรโมชั่นศูนย์บริการ
+                    และสิทธิพิเศษสำหรับลูกค้าคนสำคัญ
+                </p>
+            </div>
+
+            <PromotionPage client:load />
+        </div>
+    </div>
+</MainLayout>

@@ -1,0 +1,92 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import TruckCarousel from '../components/TruckCarousel.vue';
+---
+
+<MainLayout title="รถบรรทุก - ISUZU STC" description="ข้อมูลรถบรรทุก ISUZU King of Trucks EURO 5 MAX">
+  <div class="bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen overflow-x-hidden">
+    {/* Hero Section */}
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="text-center mb-16">
+        <img 
+          src="/truck-logo.svg" 
+          alt="ISUZU King of Trucks"
+          class="h-32 sm:h-40 lg:h-48 object-contain mx-auto mb-8"
+        />
+        <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
+          ขีดสุดแห่งความคุ้มค่า การบริหารต้นทุน และเทคโนโลยีดีเซล
+        </p>
+      </div>
+    </section>
+
+    {/* Truck Carousel - Full Width */}
+    <div class="w-screen relative left-[calc(-50vw+50%)] overflow-x-hidden">
+      <div class="px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-6xl mx-auto mb-6">
+          <h2 class="text-3xl font-bold text-white">คอลเลกชั่นรถบรรทุก</h2>
+        </div>
+        <TruckCarousel client:load />
+      </div>
+    </div>
+
+    {/* Features Section */}
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="grid md:grid-cols-3 gap-8">
+        {/* Card 1 - Value */}
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-8 hover:border-isuzu-red/50 transition-all duration-300 hover:shadow-2xl hover:shadow-isuzu-red/10">
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold text-white mb-2">
+              ขีดสุดแห่งความคุ้มค่า
+            </h3>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            ด้วยความพร้อมด้านโซลูชันที่ครบวงจร อีซูซุพร้อมเคียงคู่ผู้ประกอบการขนส่ง ช่วยลดต้นทุน เพิ่มผลกำไร คุ้มค่าตลอดการใช้งาน ด้วย <span class="font-semibold text-isuzu-red">ISUZU Life Cycle Solutions</span>
+          </p>
+        </div>
+
+        {/* Card 2 - Technology */}
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-8 hover:border-isuzu-red/50 transition-all duration-300 hover:shadow-2xl hover:shadow-isuzu-red/10">
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold text-white mb-2">
+              ขีดสุดแห่งเทคโนโลยีดีเซล
+            </h3>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            ด้วยความเชี่ยวชาญด้านเทคโนโลยีเครื่องยนต์ดีเซล อีซูซุได้พัฒนาให้ ISUZU King of Trucks EURO 5 MAX ทุกรุ่นสามารถผ่านมาตรฐานไอเสีย ยูโร 5 โดยไม่ต้องเติมน้ำยาบำบัดไอเสีย เช่น AdBlue® หรือน้ำยาอื่นๆ
+          </p>
+          <p class="text-xs text-gray-400 mt-4">
+            *AdBlue® is the registered trademark of the Verband der Automobilindustrie e. V. (VDA)
+          </p>
+        </div>
+
+        {/* Card 3 - Performance */}
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-8 hover:border-isuzu-red/50 transition-all duration-300 hover:shadow-2xl hover:shadow-isuzu-red/10">
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold text-white mb-2">
+              ขีดสุดแห่งสมรรถนะ
+            </h3>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            ด้วยเอกลักษณ์แห่งเครื่องยนต์จากอีซูซุ ที่ให้ประสิทธิภาพทั้งด้านกำลังและการประหยัดน้ำมันที่เหนือชั้น แข็งแกร่ง ทนทาน รองรับงานบรรทุกหนักได้อย่างมั่นใจ ตามแบบฉบับของ ISUZU King of Trucks EURO 5 MAX
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* Additional Info Section */}
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="bg-gradient-to-r from-isuzu-red/10 to-slate-800 border border-isuzu-red/20 rounded-2xl p-8">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">เพิ่มเติม</h2>
+        <p class="text-gray-300 leading-relaxed">
+          สำหรับข้อมูลเพิ่มเติมเกี่ยวกับรถบรรทุก ISUZU King of Trucks EURO 5 MAX โปรดติดต่อเราผ่านหน้า ติดต่อเรา หรือเยี่ยมชมศูนย์บริการของเรา
+        </p>
+      </div>
+    </section>
+  </div>
+</MainLayout>
+
+<style is:global>
+  .text-isuzu-red {
+    @apply text-red-600;
+  }
+</style>
