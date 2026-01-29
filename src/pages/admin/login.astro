@@ -65,10 +65,17 @@ import MainLayout from '../../layouts/MainLayout.astro';
 
       if (error) {
         messageEl.textContent = error.message;
-      } else {
+      } else if (data.session) {
+        // Store the access token in a cookie for server-side authentication
+        const maxAge = 60 * 60 * 24 * 7; // 7 days
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        
         messageEl.textContent = 'Success! Redirecting...';
-        // Redirect to dashboard
-        window.location.href = '/admin/dashboard';
+        // Small delay to ensure cookies are set
+        setTimeout(() => {
+          window.location.href = '/admin/dashboard';
+        }, 500);
       }
     });
   }
