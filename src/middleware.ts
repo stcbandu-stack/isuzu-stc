@@ -7,7 +7,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // Only protect /admin routes
     if (url.pathname.startsWith("/admin")) {
         // Allow access to login page
-        if (url.pathname === "/admin/login") {
+        if (url.pathname === "/admin/login" || url.pathname === "/admin/login/") {
             return next();
         }
 

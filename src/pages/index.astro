@@ -23,7 +23,6 @@ import QuickActions from "../components/QuickActions.vue";
   <!-- Quick Actions -->
   <QuickActions client:visible />
 
-  {false && (
   <!-- Welcome Section -->
   <section class="relative py-20 overflow-hidden">
     <!-- Background -->
@@ -51,8 +50,11 @@ import QuickActions from "../components/QuickActions.vue";
       <div
         class="inline-flex items-center bg-isuzu-red/10 border border-isuzu-red/20 rounded-full px-4 py-2 mb-8"
       >
-        <span class="w-2 h-2 bg-isuzu-red rounded-full mr-2 animate-pulse"></span>
-        <span class="text-isuzu-red text-sm font-medium">ศูนย์จำหน่ายรถยนต์อีซูซุอย่างเป็นทางการ</span>
+        <span class="w-2 h-2 bg-isuzu-red rounded-full mr-2 animate-pulse"
+        ></span>
+        <span class="text-isuzu-red text-sm font-medium"
+          >ศูนย์จำหน่ายรถยนต์อีซูซุอย่างเป็นทางการ</span
+        >
       </div>
 
       <!-- Heading -->
@@ -140,5 +142,4 @@ import QuickActions from "../components/QuickActions.vue";
       </div>
     </div>
   </section>
-  )}
 </MainLayout>
