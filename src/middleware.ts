@@ -11,19 +11,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
             return next();
         }
 
-        // Create Supabase client with cookies
+        // Get environment variables
         const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
         const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
         
-        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-            global: {
-                headers: {
-                    Authorization: `Bearer ${cookies.get('sb-access-token')?.value || ''}`,
-                },
-            },
-        });
+        // Check if env vars are set
+        if (!supabaseUrl || !supabaseAnonKey) {
+            console.error('Missing Supabase environment variables');
+            return redirect("/admin/login");
+        }
 
-        // Check session from cookies
+        // Check session from cookies first
         const accessToken = cookies.get('sb-access-token')?.value;
         
         if (!accessToken) {
@@ -31,6 +29,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
         }
 
         try {
+            // Create Supabase client with cookies
+            const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+                global: {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            });
+
             // Verify the token is valid
             const { data: { user }, error } = await supabase.auth.getUser();
             
@@ -38,6 +45,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
                 return redirect("/admin/login");
             }
         } catch (err) {
+            console.error('Auth error:', err);
             return redirect("/admin/login");
         }
     }
