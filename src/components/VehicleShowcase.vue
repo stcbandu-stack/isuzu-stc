@@ -30,6 +30,15 @@ const selectedCategory = ref('');
 const selectedVehicleId = ref<string | null>(null);
 const selectedColorIndex = ref(0);
 
+// Helper
+const getOptimizedUrl = (url: string | null) => {
+  if (!url) return '';
+  if (url.includes('cloudinary.com') && !url.includes('/f_auto,q_auto/')) {
+    return url.replace('/upload/', '/upload/f_auto,q_auto/');
+  }
+  return url;
+};
+
 // Magnifier State
 const isZoomed = ref(false);
 const zoomX = ref(0);
@@ -80,8 +89,9 @@ const currentColor = computed(() => {
 });
 
 const displayImage = computed(() => {
-  // Prefer color specific image, fallback to vehicle default image
-  return currentColor.value?.image_url || currentVehicle.value?.image_url;
+  // Prefer color specific image, fallback to vehicle default image, then direct url
+  const rawUrl = currentColor.value?.image_url || currentVehicle.value?.image_url || currentVehicle.value?.direct_url;
+  return getOptimizedUrl(rawUrl);
 });
 
 const displayPrice = computed(() => {
@@ -106,12 +116,12 @@ const preloadImage = (url: string | null) => {
 const preloadCategoryImages = () => {
   currentCategoryVehicles.value.forEach(vehicle => {
     // Preload main vehicle image
-    if (vehicle.image_url) preloadImage(vehicle.image_url);
+    if (vehicle.image_url) preloadImage(getOptimizedUrl(vehicle.image_url));
     if (vehicle.direct_url) preloadImage(vehicle.direct_url);
     
     // Preload all color variants
     vehicle.vehicle_colors.forEach(color => {
-      if (color.image_url) preloadImage(color.image_url);
+      if (color.image_url) preloadImage(getOptimizedUrl(color.image_url));
     });
   });
 };

@@ -8,10 +8,10 @@
       :class="currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'"
     >
       <img
-        :src="slide.image_url"
+        :src="getOptimizedUrl(slide.image_url)"
         :alt="slide.title"
         class="w-full h-full object-cover"
-        loading="lazy"
+        :loading="index === 0 ? 'eager' : 'lazy'"
       />
       <!-- Overlay Gradient -->
       <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
@@ -211,7 +211,12 @@ onMounted(() => {
   startAutoplay();
 });
 
-onUnmounted(() => {
-  stopAutoplay();
-});
+const getOptimizedUrl = (url) => {
+  if (!url) return '';
+  // Check if it's a Cloudinary URL and doesn't already have transformations
+  if (url.includes('cloudinary.com') && !url.includes('/f_auto,q_auto/')) {
+    return url.replace('/upload/', '/upload/f_auto,q_auto/');
+  }
+  return url;
+};
 </script>

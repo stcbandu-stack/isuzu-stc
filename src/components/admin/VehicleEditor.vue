@@ -370,18 +370,27 @@ const executeDeleteColor = async () => {
 };
 
 // File Upload Utility
+
 const handleFileUpload = async (e, type = 'main') => {
     const file = e.target.files[0];
     if (!file) return;
     
     uploading.value = true;
     try {
-        const fileName = `${Date.now()}_${file.name}`;
-        const { data, error } = await supabase.storage.from('slides').upload(fileName, file); 
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
+        const cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
         
-        if (error) throw error;
-        
-        const { data: { publicUrl } } = supabase.storage.from('slides').getPublicUrl(fileName);
+        const publicUrl = data.secure_url;
         
         if (type === 'main') {
             form.value.image_url = publicUrl;
@@ -390,6 +399,7 @@ const handleFileUpload = async (e, type = 'main') => {
         }
         toast.success('อัปโหลดรูปภาพเสร็จสิ้น');
     } catch (err) {
+        console.error(err);
         toast.error('การอัปโหลดล้มเหลว: ' + err.message);
     } finally {
         uploading.value = false;

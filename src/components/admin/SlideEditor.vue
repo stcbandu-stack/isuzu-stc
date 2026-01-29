@@ -153,7 +153,7 @@
                                 accept="image/*" 
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             >
-                            <div v-if="!imagePreview && !cropperImage" class="space-y-2 pointer-events-none">
+                            <div v-if="!selectedFile" class="space-y-2 pointer-events-none">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
@@ -161,10 +161,14 @@
                                     <span class="relative cursor-pointer rounded-md font-medium text-isuzu-red hover:text-red-400">อัปโหลดไฟล์</span>
                                     <p class="pl-1">หรือลากวางที่นี่</p>
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    แนะนำ: ขนาด 1920x1080px (16:9)<br>
+                                    ไฟล์ PNG หรือ JPG ขนาดไม่เกิน 5MB
+                                </p>
                             </div>
                             <div v-else class="relative pointer-events-none">
-                                <p class="text-sm text-green-400">เลือกไฟล์แล้ว คลิกเพื่อเปลี่ยน</p>
+                                <p class="text-sm text-green-400">เลือกไฟล์ {{ selectedFile.name }} แล้ว</p>
+                                <p class="text-xs text-gray-500">คลิกเพื่อเปลี่ยนรูป</p>
                             </div>
                          </div>
                     </div>
@@ -175,19 +179,9 @@
                          <p class="text-xs text-gray-500">ใส่ URL ของรูปภาพโดยตรง (เหมาะสำหรับลดการใช้ Storage)</p>
                     </div>
 
-                    <!-- Cropper / Preview Area -->
-                    <div v-if="cropperImage && uploadMode === 'upload'" class="mt-4">
-                        <div class="h-64 bg-black rounded-lg overflow-hidden border border-gray-700 relative">
-                             <img ref="cropperImg" :src="cropperImage" class="max-w-full h-auto block" />
-                        </div>
-                        <div class="flex justify-between items-center mt-2 text-xs text-gray-400">
-                            <span>* ลากกรอบเพื่อจัดองค์ประกอบภาพ (อัตราส่วน 16:9 องคับ)</span>
-                        </div>
-                    </div>
-                    
                     <!-- Final Preview -->
-                    <div v-if="(form.image_url || form.direct_url) && !cropperImage" class="mt-4">
-                        <p class="text-sm text-gray-300 mb-2">ตัวอย่างรูปภาพที่แสดงผล:</p>
+                    <div v-if="finalImagePreview" class="mt-4">
+                        <p class="text-sm text-gray-300 mb-2">ตัวอย่างรูปภาพ:</p>
                         <div class="aspect-video bg-gray-900 rounded-lg overflow-hidden border border-gray-600 relative">
                              <img :src="finalImagePreview" class="w-full h-full object-cover" />
                         </div>
@@ -260,7 +254,6 @@
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { supabase } from '../../lib/supabase';
 import { toast } from '../../lib/toast';
-import Cropper from 'cropperjs';
 import DeleteConfirmModal from './DeleteConfirmModal.vue';
 
 // State
@@ -270,10 +263,8 @@ const showModal = ref(false);
 const saving = ref(false);
 const editingSlide = ref(null);
 const uploadMode = ref('upload'); // 'upload' or 'direct'
-const cropperImage = ref(null);
-const cropper = ref(null);
-const cropperImg = ref(null);
 const fileInput = ref(null);
+const selectedFile = ref(null);
 
 // Delete State
 const showDeleteModal = ref(false);
@@ -319,11 +310,7 @@ const fetchSlides = async () => {
 
 // Actions
 const openModal = (slide = null) => {
-    cropperImage.value = null;
-    if (cropper.value) {
-        cropper.value.destroy();
-        cropper.value = null;
-    }
+    selectedFile.value = null;
     
     if (slide) {
         editingSlide.value = slide;
@@ -350,80 +337,61 @@ const openModal = (slide = null) => {
 const closeModal = () => {
     showModal.value = false;
     editingSlide.value = null;
-    cropperImage.value = null;
-    if (cropper.value) {
-        cropper.value.destroy();
-        cropper.value = null;
-    }
+    selectedFile.value = null;
     saving.value = false; // Reset saving state just in case
 };
 
-// File & Cropper Handlers
+// File Handlers
 const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-        startCropper(file);
+        selectedFile.value = file;
+        
+        // Show local preview immediately
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            form.value.image_url = e.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 };
 
 const handleDrop = (e) => {
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-        startCropper(file);
+        selectedFile.value = file;
+        
+        // Show local preview immediately
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            form.value.image_url = e.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 };
 
-const startCropper = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        cropperImage.value = e.target.result;
-        nextTick(() => {
-            if (cropper.value) cropper.value.destroy();
-            cropper.value = new Cropper(cropperImg.value, {
-                aspectRatio: 16 / 9,
-                viewMode: 2,
-                autoCropArea: 1,
-            });
+const uploadImageToCloudinary = async (file) => {
+    if (!file) return null;
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
+        const cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: 'POST',
+            body: formData
         });
-    };
-    reader.readAsDataURL(file);
-};
 
-const uploadCroppedImage = async () => {
-    if (!cropper.value) return null;
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
 
-    return new Promise((resolve, reject) => {
-        cropper.value.getCroppedCanvas({
-            width: 1280, // Reasonable max width for web
-            height: 720,
-        }).toBlob(async (blob) => {
-            if (!blob) {
-                reject(new Error('Canvas is empty'));
-                return;
-            }
-
-            try {
-                const fileName = `slide_${Date.now()}.jpg`;
-                const { data, error } = await supabase.storage
-                    .from('slides')
-                    .upload(`${fileName}`, blob, {
-                        contentType: 'image/jpeg',
-                        upsert: true
-                    });
-
-                if (error) throw error;
-
-                // Get Public URL
-                const { data: { publicUrl } } = supabase.storage
-                    .from('slides')
-                    .getPublicUrl(fileName);
-
-                resolve({ publicUrl, path: fileName });
-            } catch (err) {
-                reject(err);
-            }
-        }, 'image/jpeg', 0.85); // Quality 0.85
-    });
+        return { publicUrl: data.secure_url, path: data.public_id };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Upload failed: ' + err.message);
+    }
 };
 
 const saveSlide = async () => {
@@ -438,8 +406,8 @@ const saveSlide = async () => {
         let directUrl = form.value.direct_url;
 
         // Handle Image Upload if active
-        if (uploadMode.value === 'upload' && cropperImage.value) {
-             const result = await uploadCroppedImage();
+        if (uploadMode.value === 'upload' && selectedFile.value) {
+             const result = await uploadImageToCloudinary(selectedFile.value);
              finalImageUrl = result.publicUrl;
              storagePath = result.path;
              directUrl = null; // Clear direct_url if uploading
