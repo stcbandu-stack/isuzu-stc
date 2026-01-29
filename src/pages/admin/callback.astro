@@ -1,0 +1,61 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="กำลังเข้าสู่ระบบ... - ISUZU STC">
+  <div class="min-h-screen flex items-center justify-center bg-gray-900">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-isuzu-red mx-auto mb-4"></div>
+      <p class="text-white text-lg">กำลังเข้าสู่ระบบ...</p>
+      <p id="status" class="text-gray-400 mt-2"></p>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  const statusEl = document.getElementById('status');
+
+  const handleCallback = async () => {
+    try {
+      // Get session from URL (Supabase handles hash fragment automatically)
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error) {
+        if (statusEl) statusEl.textContent = 'เกิดข้อผิดพลาด: ' + error.message;
+        setTimeout(() => {
+          window.location.href = '/admin/login';
+        }, 2000);
+        return;
+      }
+
+      if (session) {
+        // Set cookies for server-side authentication
+        const maxAge = 60 * 60 * 24 * 7; // 7 days
+        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+
+        if (statusEl) statusEl.textContent = 'เข้าสู่ระบบสำเร็จ! กำลังเปลี่ยนหน้า...';
+        
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = '/admin/dashboard';
+        }, 500);
+      } else {
+        if (statusEl) statusEl.textContent = 'ไม่พบ session กำลังกลับหน้า login...';
+        setTimeout(() => {
+          window.location.href = '/admin/login';
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Callback error:', err);
+      if (statusEl) statusEl.textContent = 'เกิดข้อผิดพลาด กำลังกลับหน้า login...';
+      setTimeout(() => {
+        window.location.href = '/admin/login';
+      }, 2000);
+    }
+  };
+
+  handleCallback();
+</script>

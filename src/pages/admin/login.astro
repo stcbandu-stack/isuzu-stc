@@ -37,6 +37,23 @@ import MainLayout from '../../layouts/MainLayout.astro';
           </button>
         </div>
       </form>
+
+      <!-- Divider -->
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-600"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-gray-800 text-gray-400">หรือ</span>
+        </div>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button id="googleSignIn" type="button" class="w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-gray-600 rounded-md bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+        <img src="/google-logo.svg" alt="Google" class="w-5 h-5">
+        <span class="text-gray-700 font-medium">เข้าสู่ระบบด้วย Google</span>
+      </button>
+
       <div id="message" class="text-center text-sm text-red-500 mt-2"></div>
     </div>
   </div>
@@ -47,6 +64,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
 
   const loginForm = document.getElementById('loginForm');
   const messageEl = document.getElementById('message');
+  const googleSignInBtn = document.getElementById('googleSignIn');
 
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -76,6 +94,24 @@ import MainLayout from '../../layouts/MainLayout.astro';
         setTimeout(() => {
           window.location.href = '/admin/dashboard';
         }, 500);
+      }
+    });
+  }
+
+  // Google Sign In
+  if (googleSignInBtn) {
+    googleSignInBtn.addEventListener('click', async () => {
+      if (messageEl) messageEl.textContent = 'กำลังเปลี่ยนเส้นทาง...';
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/admin/callback`
+        }
+      });
+
+      if (error && messageEl) {
+        messageEl.textContent = error.message;
       }
     });
   }
