@@ -25,7 +25,7 @@
       <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-30">
         <div class="max-w-4xl mx-auto space-y-8 transform transition-all duration-1000"
              :class="currentVideoIndex === index ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'">
-          <img :src="video.logo" :alt="video.text" class="h-28 md:h-48 lg:h-64 mx-auto object-contain drop-shadow-2xl" />
+          <img :src="video.logo" :alt="video.text" class="h-28 md:h-48 lg:h-64 mx-auto object-contain drop-shadow-2xl" loading="lazy" />
           <h2 class="text-lg md:text-xl lg:text-2xl font-medium text-white/90 tracking-wide leading-tight drop-shadow-lg">
             {{ video.text }}
           </h2>

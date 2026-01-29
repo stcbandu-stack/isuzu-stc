@@ -26,6 +26,7 @@
           :src="image"
           :alt="`Truck ${index + 1}`"
           class="w-full h-full object-cover"
+          loading="lazy"
         />
         <div class="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300" />
       </div>

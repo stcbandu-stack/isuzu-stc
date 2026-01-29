@@ -6,8 +6,20 @@ CREATE TABLE IF NOT EXISTS public.promotions (
     description TEXT,
     image_url TEXT,
     direct_url TEXT,
+    gallery_images JSONB DEFAULT '[]'::jsonb,
     is_active BOOLEAN DEFAULT true
 );
+
+-- Add gallery_images column if not exists (for existing tables)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'promotions' AND column_name = 'gallery_images'
+    ) THEN
+        ALTER TABLE public.promotions ADD COLUMN gallery_images JSONB DEFAULT '[]'::jsonb;
+    END IF;
+END $$;
 
 -- Enable RLS
 ALTER TABLE public.promotions ENABLE ROW LEVEL SECURITY;

@@ -1,0 +1,271 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout
+    title="Carcon Body & Paint - อีซูซุสงวนไทยเชียงราย"
+    description="ศูนย์บริการซ่อมสีและตัวถัง มาตรฐานญี่ปุ่น ครบวงจรด้วยเครื่องมือทันสมัย"
+>
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 overflow-hidden bg-slate-900">
+        <div class="absolute inset-0 z-0">
+            <div
+                class="absolute inset-0 bg-gradient-to-b from-isuzu-red/10 to-transparent"
+            >
+            </div>
+            <div
+                class="absolute -top-24 -right-24 w-96 h-96 bg-isuzu-red/10 rounded-full blur-3xl"
+            >
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <img
+                src="https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/carcon_head.png"
+                alt="CarCon Logo"
+                class="h-24 md:h-32 mx-auto mb-8 drop-shadow-2xl animate-fade-in"
+            />
+            <h1
+                class="text-3xl md:text-5xl font-bold text-white leading-tight max-w-4xl mx-auto"
+            >
+                เครื่องมือทันสมัย ครบวงจร<br />
+                <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-isuzu-red to-orange-500"
+                >
+                    รองรับทุกงานซ่อม ได้มาตรฐานจากประเทศญี่ปุ่น
+                </span>
+            </h1>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="py-20 bg-slate-800/50">
+        <div class="container mx-auto px-4">
+            <!-- Big Cards Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div
+                    class="group relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl transition-all duration-500 hover:scale-[1.02]"
+                >
+                    <div class="aspect-video overflow-hidden">
+                        <img
+                            src="https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/carcont4.png"
+                            alt="เครื่องเชื่อมจุด GYS SPOT EVOLUTION PTI"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                    </div>
+                    <div
+                        class="p-6 md:p-8 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent"
+                    >
+                        <h3
+                            class="text-xl md:text-2xl font-bold text-white mb-2"
+                        >
+                            เครื่องเชื่อมจุด GYS SPOT EVOLUTION PTI
+                        </h3>
+                        <p class="text-gray-400">
+                            หัวเชื่อม Transformer แรงกดสูงสุด 550 daN
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    class="group relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl transition-all duration-500 hover:scale-[1.02]"
+                >
+                    <div class="aspect-video overflow-hidden">
+                        <img
+                            src="https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/carcont5.png"
+                            alt="ห้องพ่นสี / อบสี"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                    </div>
+                    <div
+                        class="p-6 md:p-8 bg-gradient-to-t from-slate-900 via-slate-900/90 to-transparent"
+                    >
+                        <h3
+                            class="text-xl md:text-2xl font-bold text-white mb-2"
+                        >
+                            ห้องสำหรับพ่นสี / อบสี
+                        </h3>
+                        <p class="text-gray-400">
+                            ด้วยสีพ่นซ่อมรถยนต์คุณภาพสูง มาตรฐาน NIPPON
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Small Cards Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {
+                    [
+                        {
+                            img: "https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/carcont3.png",
+                            title: "EagarPular",
+                            desc: "อุปกรณ์ดึงตัวถัง รถไม่ช้ำ ไม่ต้องถอดแผงประตู",
+                        },
+                        {
+                            img: "https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/carcont2.png",
+                            title: "UV Torch",
+                            desc: "เครื่องฉายแสง UV และสีโป้วมาตรฐานญี่ปุ่น ช่วยให้สีแห้งเร็วขึ้น",
+                        },
+                        {
+                            img: "https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/carcont1.png",
+                            title: "CarCon Loc",
+                            desc: "เครื่องป้อนแม็กพิเศษ สูตรลับเฉพาะ CarCon",
+                        },
+                    ].map((item) => (
+                        <div class="group bg-slate-900/50 rounded-2xl border border-slate-700/50 overflow-hidden hover:border-isuzu-red/50 transition-colors duration-300">
+                            <div class="aspect-square overflow-hidden">
+                                <img
+                                    src={item.img}
+                                    alt={item.title}
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                            </div>
+                            <div class="p-6">
+                                <h4 class="text-lg font-bold text-white mb-2">
+                                    {item.title}
+                                </h4>
+                                <p class="text-gray-400 text-sm">{item.desc}</p>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Insurance Section -->
+    <section class="py-20 bg-slate-900 overflow-hidden">
+        <div class="container mx-auto px-4 text-center">
+            <div class="mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                    ประกันภัยในเครือ
+                </h2>
+                <p class="text-gray-400">เบิกประกันได้มากถึง 10 บริษัท</p>
+                <div class="w-16 h-1 bg-isuzu-red mx-auto mt-6"></div>
+            </div>
+
+            <div
+                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"
+            >
+                {
+                    [
+                        "virija.png",
+                        "tokyo.png",
+                        "muangrthai.png",
+                        "bkkinsu.png",
+                        "thanachat.png",
+                        "deves-insu.png",
+                        "thaivivat.png",
+                        "mitr.png",
+                        "nawakit-insu.png",
+                        "intorn-insu.png",
+                    ].map((logo) => (
+                        <div class="bg-white p-6 rounded-2xl flex items-center justify-center aspect-square transition-all duration-300 hover:scale-110 shadow-lg border border-slate-700/50">
+                            <img
+                                src={`https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/INSU/${logo}`}
+                                alt="Insurance Logo"
+                                class="w-full h-full object-contain"
+                            />
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Box -->
+    <section class="py-24 bg-slate-900">
+        <div class="container mx-auto px-4">
+            <div
+                class="max-w-4xl mx-auto bg-gradient-to-r from-isuzu-red to-red-600 rounded-3xl shadow-2xl relative"
+            >
+                <div
+                    class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 rounded-3xl"
+                >
+                </div>
+                <div
+                    class="flex flex-col md:flex-row items-center relative z-10 p-8 md:p-12"
+                >
+                    <div
+                        class="flex-grow text-center md:text-left mb-6 md:mb-0"
+                    >
+                        <p
+                            class="text-xl md:text-2xl font-bold text-white mb-4"
+                        >
+                            ติดต่อสอบถามเพิ่มเติม
+                        </p>
+                        <div class="flex flex-col gap-4">
+                            <a
+                                href="tel:086-4301781"
+                                class="flex items-center justify-center md:justify-start text-3xl md:text-4xl font-black text-white hover:underline transition-all group"
+                            >
+                                <svg
+                                    class="w-8 h-8 mr-3 text-white/80 group-hover:scale-110 transition-transform"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1H7c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+                                    ></path>
+                                </svg>
+                                086-430-1781
+                            </a>
+                            <a
+                                href="tel:086-4301789"
+                                class="flex items-center justify-center md:justify-start text-3xl md:text-4xl font-black text-white hover:underline transition-all group"
+                            >
+                                <svg
+                                    class="w-8 h-8 mr-3 text-white/80 group-hover:scale-110 transition-transform"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1H7c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+                                    ></path>
+                                </svg>
+                                086-430-1789
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Spacer for Desktop Cartoon -->
+                    <div class="hidden md:block w-48 lg:w-64 shrink-0"></div>
+                </div>
+
+                <!-- Floating Cartoon -->
+                <div
+                    class="hidden sm:block absolute bottom-0 right-4 md:right-8 w-40 sm:w-48 md:w-64 lg:w-72 z-20 pointer-events-none"
+                >
+                    <img
+                        src="https://cdn.jsdelivr.net/gh/stcbandu-stack/stcisuzu@main/INSU/service-csrtoon.png"
+                        alt="ช่างอีซูซุ"
+                        class="w-full h-auto drop-shadow-[-10px_-10px_20px_rgba(0,0,0,0.3)] animate-bounce-slow"
+                    />
+                </div>
+            </div>
+        </div>
+    </section>
+</MainLayout>
+
+<style>
+    .animate-bounce-slow {
+        animation: bounce 3.5s infinite;
+    }
+    @keyframes bounce {
+        0%,
+        100% {
+            transform: translateY(-5%);
+            animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+        }
+        50% {
+            transform: translateY(0);
+            animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+        }
+    }
+
+    /* Image Protection */
+    img {
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+</style>

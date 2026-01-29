@@ -75,6 +75,49 @@
                       placeholder="เช่น https://www.isuzu-tis.com/promotions"
                    >
                 </div>
+
+                <!-- Gallery Images JSONB -->
+                <div>
+                   <label class="block text-sm font-medium text-gray-400 mb-2">
+                     รูปภาพเพิ่มเติม (Gallery) - JSONB Array
+                   </label>
+                   <textarea 
+                      v-model="galleryInput" 
+                      rows="4"
+                      class="w-full bg-gray-900 border rounded-lg px-4 py-3 text-white text-sm font-mono focus:border-isuzu-red outline-none resize-none"
+                      :class="galleryError ? 'border-red-500' : 'border-gray-700'"
+                      placeholder='["https://example.com/image1.jpg", "https://example.com/image2.jpg"]'
+                      @input="validateGalleryInput"
+                   ></textarea>
+                   <div v-if="galleryError" class="mt-2 text-red-400 text-xs flex items-center gap-1">
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                     {{ galleryError }}
+                   </div>
+                   <div v-else-if="galleryInput && parsedGalleryCount > 0" class="mt-2 text-green-400 text-xs flex items-center gap-1">
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                     รูปแบบถูกต้อง ({{ parsedGalleryCount }} รูป)
+                   </div>
+                   
+                   <!-- Example Format -->
+                   <div class="mt-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                     <p class="text-xs text-gray-500 mb-2">📝 ตัวอย่างรูปแบบที่ถูกต้อง:</p>
+                     <code class="text-xs text-gray-400 block whitespace-pre-wrap break-all">["https://example.com/img1.jpg", "https://example.com/img2.jpg"]</code>
+                     <p class="text-xs text-gray-500 mt-2">💡 หมายเหตุ: ใส่ URL รูปภาพในรูปแบบ JSON Array สัดส่วนที่แนะนำ 5:4 (แนวนอน)</p>
+                   </div>
+                   
+                   <!-- Gallery Preview -->
+                   <div v-if="parsedGallery.length > 0" class="mt-4">
+                     <label class="block text-sm font-medium text-gray-400 mb-2">ตัวอย่าง Gallery ({{ parsedGallery.length }} รูป)</label>
+                     <div class="grid grid-cols-4 gap-2">
+                       <div v-for="(url, idx) in parsedGallery.slice(0, 8)" :key="idx" class="aspect-[5/4] rounded-lg overflow-hidden border border-gray-700 bg-gray-900">
+                         <img :src="url" class="w-full h-full object-cover" @error="(e) => e.target.src = 'https://placehold.co/500x400/333/666?text=Error'">
+                       </div>
+                       <div v-if="parsedGallery.length > 8" class="aspect-[5/4] rounded-lg overflow-hidden border border-gray-700 bg-gray-900 flex items-center justify-center">
+                         <span class="text-gray-500 text-sm">+{{ parsedGallery.length - 8 }} รูป</span>
+                       </div>
+                     </div>
+                   </div>
+                </div>
             </div>
 
             <!-- Preview 4:5 -->
@@ -124,11 +167,55 @@ const isEditing = computed(() => !!props.promotion);
 const saving = ref(false);
 const uploading = ref(false);
 
+// Gallery JSONB
+const galleryInput = ref('');
+const galleryError = ref('');
+const parsedGallery = ref([]);
+const parsedGalleryCount = computed(() => parsedGallery.value.length);
+
+const validateGalleryInput = () => {
+  galleryError.value = '';
+  parsedGallery.value = [];
+  
+  if (!galleryInput.value.trim()) {
+    return true;
+  }
+  
+  try {
+    const parsed = JSON.parse(galleryInput.value);
+    
+    if (!Array.isArray(parsed)) {
+      galleryError.value = 'ข้อมูลต้องอยู่ในรูปแบบ Array เท่านั้น เช่น ["url1", "url2"]';
+      return false;
+    }
+    
+    for (let i = 0; i < parsed.length; i++) {
+      if (typeof parsed[i] !== 'string') {
+        galleryError.value = `รายการที่ ${i + 1} ต้องเป็น string (URL)`;
+        return false;
+      }
+      
+      // Basic URL validation
+      if (!parsed[i].startsWith('http://') && !parsed[i].startsWith('https://')) {
+        galleryError.value = `รายการที่ ${i + 1} ต้องเป็น URL ที่ขึ้นต้นด้วย http:// หรือ https://`;
+        return false;
+      }
+    }
+    
+    parsedGallery.value = parsed;
+    return true;
+  } catch (e) {
+    galleryError.value = 'รูปแบบ JSON ไม่ถูกต้อง: ' + e.message;
+    return false;
+  }
+};
+
 const form = ref({
     title: '',
     description: '',
     image_url: '',
     direct_url: '',
+    gallery_images: [],
     is_active: true
 });
 
@@ -136,27 +223,52 @@ const form = ref({
 watch(() => props.promotion, (newVal) => {
     if (newVal) {
         form.value = { ...newVal };
+        // Initialize gallery input from existing data
+        if (newVal.gallery_images && Array.isArray(newVal.gallery_images)) {
+          galleryInput.value = JSON.stringify(newVal.gallery_images, null, 2);
+          parsedGallery.value = newVal.gallery_images;
+        } else {
+          galleryInput.value = '';
+          parsedGallery.value = [];
+        }
     } else {
         form.value = {
             title: '',
             description: '',
             image_url: '',
             direct_url: '',
+            gallery_images: [],
             is_active: true
         };
+        galleryInput.value = '';
+        parsedGallery.value = [];
     }
+    galleryError.value = '';
 }, { immediate: true });
 
 const savePromotion = async () => {
     if (saving.value) return;
+    
+    // Validate gallery input before saving
+    if (galleryInput.value.trim() && !validateGalleryInput()) {
+      toast.error('กรุณาแก้ไขรูปแบบ Gallery Images ให้ถูกต้อง');
+      return;
+    }
+    
     saving.value = true;
     
     try {
+        // Prepare form data with parsed gallery
+        const submitData = {
+          ...form.value,
+          gallery_images: parsedGallery.value
+        };
+        
         if (isEditing.value) {
-            const { error } = await supabase.from('promotions').update(form.value).eq('id', props.promotion.id);
+            const { error } = await supabase.from('promotions').update(submitData).eq('id', props.promotion.id);
             if (error) throw error;
         } else {
-            const { error } = await supabase.from('promotions').insert([form.value]);
+            const { error } = await supabase.from('promotions').insert([submitData]);
             if (error) throw error;
         }
         

@@ -1,0 +1,132 @@
+/* empty css                                 */
+import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_BorZG8IO.mjs';
+import 'piccolore';
+import { $ as $$MainLayout } from '../chunks/MainLayout_DqAf7Ggx.mjs';
+export { renderers } from '../renderers.mjs';
+
+const $$Policy = createComponent(($$result, $$props, $$slots) => {
+  return renderTemplate`${renderComponent($$result, "MainLayout", $$MainLayout, { "title": "Privacy Policy & Terms - \u0E2D\u0E35\u0E0B\u0E39\u0E0B\u0E38\u0E2A\u0E07\u0E27\u0E19\u0E44\u0E17\u0E22\u0E40\u0E0A\u0E35\u0E22\u0E07\u0E23\u0E32\u0E22", "description": "\u0E19\u0E42\u0E22\u0E1A\u0E32\u0E22\u0E04\u0E27\u0E32\u0E21\u0E40\u0E1B\u0E47\u0E19\u0E2A\u0E48\u0E27\u0E19\u0E15\u0E31\u0E27\u0E41\u0E25\u0E30\u0E40\u0E07\u0E37\u0E48\u0E2D\u0E19\u0E44\u0E02\u0E01\u0E32\u0E23\u0E43\u0E0A\u0E49\u0E1A\u0E23\u0E34\u0E01\u0E32\u0E23" }, { "default": ($$result2) => renderTemplate`  ${maybeRenderHead()}<section class="relative pt-32 pb-16 overflow-hidden bg-slate-900"> <div class="absolute inset-0 z-0"> <div class="absolute inset-0 bg-gradient-to-b from-isuzu-red/5 to-transparent"></div> </div> <div class="container mx-auto px-4 relative z-10 text-center"> <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+Legal & <span class="text-isuzu-red">Policy</span> </h1> <p class="text-gray-400 text-lg">
+ข้อกำหนดและนโยบายความเป็นส่วนตัว
+</p> <div class="w-20 h-1.5 bg-isuzu-red mx-auto mt-8 rounded-full"></div> </div> </section>  <section class="py-20 bg-slate-800/30"> <div class="container mx-auto px-4"> <div class="max-w-4xl mx-auto space-y-16"> <!-- Privacy Policy --> <div class="bg-slate-900/50 rounded-3xl p-8 md:p-12 border border-slate-700/50 shadow-xl backdrop-blur-sm"> <div class="flex items-center gap-4 mb-8"> <div class="p-3 bg-isuzu-red/10 rounded-2xl"> <svg class="w-8 h-8 text-isuzu-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path> </svg> </div> <h2 class="text-3xl font-bold text-white">
+Privacy Policy
+</h2> </div> <div class="grid md:grid-cols-2 gap-12"> <!-- Thai Version --> <div class="space-y-6"> <h3 class="text-xl font-bold text-isuzu-red border-b border-isuzu-red/20 pb-2">
+นโยบายความเป็นส่วนตัว
+</h3> <div class="space-y-4 text-gray-300 leading-relaxed"> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+ข้อมูลที่เราจัดเก็บ:
+</h4> <p class="text-sm">
+เราอาจมีการเก็บรวบรวมข้อมูลส่วนบุคคลของท่าน
+                                        ได้แก่ ชื่อ-นามสกุล, เบอร์โทรศัพท์, LINE
+                                        ID,
+                                        และข้อมูลรุ่นรถยนต์ที่ท่านให้ความสนใจ
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+วัตถุประสงค์ในการเก็บรวบรวม:
+</h4> <ul class="list-disc list-inside text-sm space-y-1"> <li>
+เพื่อใช้ในการติดต่อสื่อสาร
+                                            ให้ข้อมูลเกี่ยวกับผลิตภัณฑ์และบริการซื่อสัตย์
+</li> <li>
+เพื่อนำเสนอรายละเอียดส่วนลด
+                                            โปรโมชั่น และใบเสนอราคา
+</li> <li>
+เพื่อประสานงานในการวางแผนจัดไฟแนนซ์
+                                            หรือการนัดหมายทดลองขับขี่
+</li> </ul> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+การส่งต่อข้อมูล:
+</h4> <p class="text-sm">
+บริษัทอาจส่งต่อข้อมูลท่านให้แก่
+                                        "สถาบันการเงิน" (กรณีขอจัดไฟแนนซ์)
+                                        เพื่อดำเนินการตามความประสงค์ของลูกค้า
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+ระยะเวลาจัดเก็บ:
+</h4> <p class="text-sm">
+จะเก็บข้อมูลไว้จนกว่าจะสิ้นสุดการให้บริการ
+                                        หรือตามที่กฎหมายกำหนด
+</p> </div> </div> </div> <!-- English Version --> <div class="space-y-6"> <h3 class="text-xl font-bold text-blue-400 border-b border-blue-400/20 pb-2">
+EN
+</h3> <div class="space-y-4 text-gray-300 leading-relaxed italic"> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Data We Collect:
+</h4> <p class="text-sm">
+We collect information including
+                                        Name-Surname, Phone Number, LINE ID, and
+                                        the vehicle models you are interested
+                                        in.
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Purpose of Collection:
+</h4> <ul class="list-disc list-inside text-sm space-y-1"> <li>
+To provide communications and
+                                            service information as requested.
+</li> <li>
+To present price quotations,
+                                            discounts, and promotions.
+</li> <li>
+To coordinate financing plans or
+                                            schedule test drives.
+</li> </ul> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Data Disclosure:
+</h4> <p class="text-sm">
+Data may be shared with "Financial
+                                        Institutions" to fulfill your requests.
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Retention Period:
+</h4> <p class="text-sm">
+Until the end of service or as required
+                                        by law.
+</p> </div> </div> </div> </div> </div> <!-- Terms of Service --> <div class="bg-slate-900/50 rounded-3xl p-8 md:p-12 border border-slate-700/50 shadow-xl backdrop-blur-sm"> <div class="flex items-center gap-4 mb-8"> <div class="p-3 bg-orange-500/10 rounded-2xl"> <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path> </svg> </div> <h2 class="text-3xl font-bold text-white">
+Terms of Service
+</h2> </div> <div class="grid md:grid-cols-2 gap-12"> <!-- Thai Version --> <div class="space-y-6"> <h3 class="text-xl font-bold text-orange-500 border-b border-orange-500/20 pb-2">
+เงื่อนไขการใช้บริการ
+</h3> <div class="space-y-4 text-gray-300 leading-relaxed"> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+เงื่อนไขโปรโมชั่น:
+</h4> <p class="text-sm">
+รายละเอียดโปรโมชั่นและของแถม
+                                        เป็นไปตามเงื่อนไขที่บริษัทกำหนด
+                                        และอาจมีการเปลี่ยนแปลงโดยมิได้แจ้งให้ทราบล่วงหน้า
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+ความถูกต้องของข้อมูล:
+</h4> <p class="text-sm">
+รายละเอียดทางเทคนิคของรถ (เช่น แรงม้า,
+                                        อัตราสิ้นเปลือง)
+                                        เป็นข้อมูลอ้างอิงจากผู้ผลิต
+                                        โปรดตรวจสอบสเปกจริงที่โชว์รูมอีกครั้ง
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+การจองรถ:
+</h4> <p class="text-sm">
+การจองรถผ่านหน้าเว็บ
+                                        จะสมบูรณ์ต่อเมื่อมีการตรวจสอบเอกสารและรับใบจองอย่างเป็นทางการจากที่ปรึกษาการขายเท่านั้น
+</p> </div> </div> </div> <!-- English Version --> <div class="space-y-6"> <h3 class="text-xl font-bold text-blue-400 border-b border-blue-400/20 pb-2">
+EN
+</h3> <div class="space-y-4 text-gray-300 leading-relaxed italic"> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Promotion Terms:
+</h4> <p class="text-sm">
+Promotions and gifts are subject to
+                                        company terms and may change without
+                                        prior notice.
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Information Accuracy:
+</h4> <p class="text-sm">
+Technical specs (Horsepower,
+                                        Consumption) are based on manufacturer
+                                        data. Please verify at showroom.
+</p> </div> <div> <h4 class="font-bold text-white text-sm uppercase tracking-wider mb-2">
+Vehicle Booking:
+</h4> <p class="text-sm">
+Online bookings are only complete upon
+                                        document verification and receipt of an
+                                        official booking form from our sales
+                                        consultants.
+</p> </div> </div> </div> </div> </div> </div> </div> </section> ` })}`;
+}, "D:/Website/isuzu-stc/src/pages/policy.astro", void 0);
+
+const $$file = "D:/Website/isuzu-stc/src/pages/policy.astro";
+const $$url = "/policy";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+    __proto__: null,
+    default: $$Policy,
+    file: $$file,
+    url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };

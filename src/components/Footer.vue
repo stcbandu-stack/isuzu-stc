@@ -24,15 +24,15 @@
           </div>
 
           <div class="flex space-x-4">
-            <a href="https://www.facebook.com/isuzustc/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+            <a href="https://www.facebook.com/isuzustc/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-[#1877F2] transition-colors">
               <span class="sr-only">Facebook</span>
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"/></svg>
             </a>
-            <a href="https://www.youtube.com/@STCCR" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">
+            <a href="https://www.youtube.com/@STCCR" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-[#FF0000] transition-colors">
               <span class="sr-only">YouTube</span>
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             </a>
-            <a href="https://line.me/R/ti/p/@STCCR" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-isuzu-red transition-colors">
+            <a href="https://line.me/R/ti/p/@STCCR" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-[#06C755] transition-colors">
               <span class="sr-only">Line</span>
               <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.121.303.079.778.038 1.087l-.164 1.022c-.049.307-.238 1.201 1.027.655 1.265-.546 6.829-4.02 9.317-6.887 1.748-1.921 2.689-3.945 2.689-6.097zm-18.156 3.235c-.172 0-.312-.14-.312-.312v-3.792c0-.172.14-.312.312-.312h.156c.172 0 .312.14.312.312v3.324h1.844c.172 0 .312.14.312.312v.156c0 .172-.14.312-.312.312h-2.312zm3.375 0c-.172 0-.312-.14-.312-.312v-3.792c0-.172.14-.312.312-.312h.156c.172 0 .312.14.312.312v3.792c0 .172-.14.312-.312.312h-.156zm6.188 0c0 .15-.098.282-.244.312-.023.003-.047.006-.071.006-.118 0-.223-.067-.272-.171l-2.003-2.802v2.655c0 .172-.14.312-.312.312h-.156c-.172 0-.312-.14-.312-.312v-3.792c0-.15.098-.282.244-.312.023-.003.047-.006.071-.006.118 0 .223.067.272.171l2.003 2.802v-2.655c0-.172.14-.312.312-.312h.156c.172 0 .312.14.312.312v3.792zm4.148-2.094c0 .172-.14.312-.312.312h-1.844v.938h1.844c.172 0 .312.14.312.312v.156c0 .172-.14.312-.312.312h-2.312c-.172 0-.312-.14-.312-.312v-3.792c0-.172.14-.312.312-.312h2.312c.172 0 .312.14.312.312v.156c0 .172-.14.312-.312.312h-1.844v.938h1.844c.172 0 .312.14.312.312v.156z"/>

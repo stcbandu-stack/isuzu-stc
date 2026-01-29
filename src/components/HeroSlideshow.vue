@@ -11,6 +11,7 @@
         :src="slide.image_url"
         :alt="slide.title"
         class="w-full h-full object-cover"
+        loading="lazy"
       />
       <!-- Overlay Gradient -->
       <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>

@@ -6,6 +6,7 @@
             :src="promotion.image_url" 
             :alt="promotion.title"
             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
         >
         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-60"></div>
     </div>
