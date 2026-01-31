@@ -97,9 +97,7 @@
 
           <!-- Footer Actions -->
           <div class="mt-12 pt-8 border-t border-gray-700/50 flex flex-col gap-4">
-              <!-- Interested Button (Hidden for now) -->
               <button 
-                  v-if="false"
                   @click="showLeadForm = true"
                   class="w-full py-4 bg-isuzu-red hover:bg-red-700 text-white rounded-2xl font-bold text-center transition-all shadow-xl shadow-isuzu-red/20 flex items-center justify-center gap-2 group"
               >

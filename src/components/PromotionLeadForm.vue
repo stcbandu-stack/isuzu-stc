@@ -35,38 +35,62 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
   errorMsg.value = '';
 
+  const leadData = {
+    full_name: formData.value.fullName,
+    phone: formData.value.phone,
+    branch: formData.value.branch,
+    line_id: formData.value.lineId,
+    email: formData.value.email,
+    promotion_title: formData.value.promotionTitle,
+    promotion_detail: formData.value.promotionDetail,
+    source_url: window.location.href
+  };
+
   try {
-    // 1. Save to Supabase (Lead capture)
-    // Note: Assuming a 'promotion_leads' table exists or will be created.
-    // If it doesn't exist, this might fail, but it's the standard way to handle leads in this project.
-    const { error } = await supabase
+    // 1. บันทึกข้อมูลลง Supabase
+    const { error: dbError } = await supabase
       .from('promotion_leads')
-      .insert([
-        {
-          full_name: formData.value.fullName,
+      .insert([leadData]);
+
+    if (dbError) {
+      console.error('Database error:', dbError);
+      // ยังคงพยายามส่งเมลล์ แม้ DB จะมีปัญหา
+    }
+
+    // 2. ส่งอีเมลล์แจ้งเตือนผ่าน API
+    try {
+      const emailResponse = await fetch('/api/send-lead-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.value.fullName,
           phone: formData.value.phone,
           branch: formData.value.branch,
-          line_id: formData.value.lineId,
+          lineId: formData.value.lineId,
           email: formData.value.email,
-          promotion_title: formData.value.promotionTitle,
-          promotion_detail: formData.value.promotionDetail,
-          source_url: window.location.href
-        }
-      ]);
+          promotionTitle: formData.value.promotionTitle,
+          promotionDetail: formData.value.promotionDetail,
+          sourceUrl: window.location.href
+        }),
+      });
 
-    if (error) throw error;
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.json();
+        console.error('Email API error:', errorData);
+        // ไม่ throw error เพราะ Lead ถูกบันทึกแล้ว
+      }
+    } catch (emailErr) {
+      console.error('Email sending failed:', emailErr);
+      // ไม่ throw error เพราะ Lead ถูกบันทึกแล้ว
+    }
 
-    // 2. The user requested to send to mkt.bu@isuzu-stc.com
-    // In a static/client-side app, this usually requires an Edge Function or a triggered worker.
-    // We notify the UI of success.
-    
+    // แสดงผลสำเร็จ (แม้อีเมลล์จะไม่ส่งก็ตาม เพราะ Lead ถูกบันทึกแล้ว)
     emit('success');
+    
   } catch (err: any) {
     console.error('Error submitting lead:', err);
-    // Even if database save fails (e.g. table not created yet), 
-    // we can simulate success if we want, but better to show error or handle gracefully.
-    // For this demonstration, we'll proceed to success if the user intends it as a mock first, 
-    // or keep the error to be honest.
     errorMsg.value = 'เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง';
   } finally {
     isSubmitting.value = false;
