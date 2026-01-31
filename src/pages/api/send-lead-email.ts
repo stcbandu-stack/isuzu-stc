@@ -114,7 +114,7 @@ export const POST: APIRoute = async ({ request }) => {
       subject: `ลูกค้า ${fullName} สนใจ ${promotionTitle || 'โปรโมชั่น'}`,
       html: htmlContent,
       // สามารถเพิ่ม CC ได้ถ้าต้องการ
-      cc: ['mkt.bu@isuzu-stc.com'],
+      cc: ['mkt.cr@isuzu-stc.com'],
     });
 
     if (error) {
