@@ -2,7 +2,7 @@
 import MainLayout from "../layouts/MainLayout.astro";
 import HeroSlideshow from "../components/HeroSlideshow.vue";
 import VideoBackgroundSection from "../components/VideoBackgroundSection.vue";
-import VehicleShowcase from "../components/VehicleShowcase.vue";
+import VehicleShowcaseLoader from "../components/VehicleShowcaseLoader.vue";
 import QuickActions from "../components/QuickActions.vue";
 ---
 
@@ -17,7 +17,7 @@ import QuickActions from "../components/QuickActions.vue";
 
   <!-- Vehicle Showcase -->
   <section id="vehicles" class="bg-gray-50 relative z-20">
-    <VehicleShowcase client:visible />
+    <VehicleShowcaseLoader client:only="vue" />
   </section>
 
   <!-- Quick Actions -->
