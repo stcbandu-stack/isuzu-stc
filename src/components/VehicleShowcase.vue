@@ -157,6 +157,37 @@ const handleMouseMove = (e: MouseEvent) => {
   zoomBgPos.value = `${x}% ${y}%`;
 };
 
+// Touch handlers for mobile
+const handleTouchStart = (e: TouchEvent) => {
+  e.preventDefault(); // Prevent scrolling while zooming
+  isZoomed.value = true;
+  handleTouchMove(e);
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  if (!e.touches.length) return;
+  
+  const touch = e.touches[0];
+  const container = e.currentTarget as HTMLElement;
+  const { left, top, width, height } = container.getBoundingClientRect();
+  
+  // Calculate relative position (0 to 100)
+  const x = ((touch.clientX - left) / width) * 100;
+  const y = ((touch.clientY - top) / height) * 100;
+  
+  // Clamp values to keep magnifier within bounds
+  const clampedX = Math.max(0, Math.min(100, x));
+  const clampedY = Math.max(0, Math.min(100, y));
+  
+  zoomX.value = touch.clientX - left;
+  zoomY.value = touch.clientY - top;
+  zoomBgPos.value = `${clampedX}% ${clampedY}%`;
+};
+
+const handleTouchEnd = () => {
+  isZoomed.value = false;
+};
+
 // Watch for category change to auto-select first vehicle
 watch(currentCategoryVehicles, (newVal) => {
   if (newVal.length > 0 && !selectedVehicleId.value) {
@@ -246,10 +277,13 @@ onMounted(async () => {
             
             <!-- Vehicle Display -->
             <div 
-              class="flex-1 flex flex-col items-center justify-center relative mb-4 min-h-[250px] w-full"
+              class="flex-1 flex flex-col items-center justify-center relative mb-4 min-h-[250px] w-full touch-none"
               @mouseenter="isZoomed = true"
               @mouseleave="isZoomed = false"
               @mousemove="handleMouseMove"
+              @touchstart="handleTouchStart"
+              @touchmove="handleTouchMove"
+              @touchend="handleTouchEnd"
             >
               <!-- Background Blob -->
               <div class="absolute inset-0 bg-gradient-to-br from-gray-100 to-transparent rounded-full opacity-50 blur-2xl transform scale-75"></div>
