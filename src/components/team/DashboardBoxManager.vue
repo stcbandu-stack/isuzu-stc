@@ -139,22 +139,22 @@
                 lastMovedMenuItemId === item.id ? 'ring-2 ring-yellow-300 animate-pulse' : ''
               ]"
             >
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 min-w-0 flex-1">
                 <!-- Drag Handle for Menu Item -->
-                <div class="cursor-grab active:cursor-grabbing p-1 text-white/50 hover:text-white" title="ลากเพื่อจัดลำดับ">
+                <div class="cursor-grab active:cursor-grabbing p-1 text-white/50 hover:text-white flex-shrink-0" title="ลากเพื่อจัดลำดับ">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
                   </svg>
                 </div>
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon || 'M13 7l5 5m0 0l-5 5m5-5H6'"></path>
                 </svg>
-                <div>
+                <div class="min-w-0 flex-1">
                   <p class="font-medium text-white">{{ item.title }} <span class="text-white/50 text-xs">#{{ itemIndex + 1 }}</span></p>
-                  <p class="text-xs text-white/70">{{ item.url || 'ยังไม่ได้กำหนด URL' }}</p>
+                  <p class="text-xs text-white/70 truncate" :title="item.url">{{ item.url || 'ยังไม่ได้กำหนด URL' }}</p>
                 </div>
               </div>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1 flex-shrink-0">
                 <!-- Move Menu Up -->
                 <button
                   @click.stop="moveMenuItemUp(box, itemIndex)"
