@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# Google API credentials (sensitive)
+stc-data-api-*.json
+
 # macOS-specific files
 .DS_Store
 

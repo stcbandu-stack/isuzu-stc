@@ -1,0 +1,492 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+// Check authentication
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const accessToken = Astro.cookies.get('sb-access-token')?.value;
+const refreshToken = Astro.cookies.get('sb-refresh-token')?.value;
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect('/team/login?redirect=/team/booking-summary');
+}
+
+const { data: sessionData, error } = await supabase.auth.setSession({
+  access_token: accessToken,
+  refresh_token: refreshToken,
+});
+
+if (error || !sessionData?.user) {
+  return Astro.redirect('/team/login?redirect=/team/booking-summary');
+}
+
+// Thai month names
+const months = [
+  { value: '01', name: 'มกราคม' },
+  { value: '02', name: 'กุมภาพันธ์' },
+  { value: '03', name: 'มีนาคม' },
+  { value: '04', name: 'เมษายน' },
+  { value: '05', name: 'พฤษภาคม' },
+  { value: '06', name: 'มิถุนายน' },
+  { value: '07', name: 'กรกฎาคม' },
+  { value: '08', name: 'สิงหาคม' },
+  { value: '09', name: 'กันยายน' },
+  { value: '10', name: 'ตุลาคม' },
+  { value: '11', name: 'พฤศจิกายน' },
+  { value: '12', name: 'ธันวาคม' },
+];
+---
+
+<MainLayout title="สรุปยอดจองมือสอง 2569 | Team Dashboard">
+  <!-- Styles mimicking the reference -->
+  <style is:global>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Sarabun', sans-serif;
+      overflow: hidden;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    /* Modern Scrollbar */
+    #dashboard-content::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    #dashboard-content::-webkit-scrollbar-track {
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 10px;
+    }
+    #dashboard-content::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    #dashboard-content::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #4f46e5, #7c3aed);
+      background-clip: padding-box;
+    }
+    #dashboard-content::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+    
+    /* Firefox */
+    #dashboard-content {
+      scrollbar-width: thin;
+      scrollbar-color: #6366f1 rgba(99, 102, 241, 0.1);
+    }
+
+    .card-width {
+        width: 400px;
+        min-width: 400px;
+    }
+    .text-big {
+        font-size: 3.5rem;
+        line-height: 1;
+        font-weight: 800;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    }
+    
+    .vivid-gradient {
+        background: linear-gradient(45deg, #FF0055, #FF5500, #FFCC00, #00CC55, #0055FF, #5500FF);
+        background-size: 300% 300%;
+        animation: gradientBG 10s ease infinite;
+    }
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+  </style>
+
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col h-screen overflow-hidden">
+    <!-- Header -->
+    <header id="main-header" class="bg-black/30 backdrop-blur-md border-b border-white/10 z-50 flex-none">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <a href="/team/dashboard" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+            </a>
+            <div class="flex items-center">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg mr-3 shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                  <h1 class="text-xl font-extrabold text-white tracking-tight">สรุปยอดการจองมือสอง 2569</h1>
+                  <p class="text-xs text-white/50">Used Car Booking Summary Dashboard</p>
+                </div>
+            </div>
+          </div>
+          
+          <!-- Month Filter -->
+          <div class="flex items-center gap-2 bg-indigo-900/50 p-2 rounded-xl border border-indigo-500/30">
+            <label for="month-filter" class="font-bold text-indigo-200 text-sm">เดือน:</label>
+            <select id="month-filter" class="bg-slate-800 border-indigo-500/50 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+              {months.map(m => (
+                <option value={m.value}>{m.name}</option>
+              ))}
+            </select>
+            <button onclick="loadData()" class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-4 py-1.5 rounded-lg hover:from-indigo-700 hover:to-violet-700 transition shadow-md font-bold text-sm transform active:scale-95">
+              โหลด
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Loading State -->
+    <div id="loading" class="flex-1 flex items-center justify-center">
+      <div class="flex flex-col items-center justify-center text-white/50">
+        <svg class="w-12 h-12 animate-spin mb-4 text-indigo-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-lg font-semibold animate-pulse">กำลังเตรียมข้อมูล...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="flex-1 hidden flex items-center justify-center p-8">
+        <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-8 max-w-md mx-auto text-center">
+            <svg class="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <h3 class="text-xl font-bold text-white mb-2">เกิดข้อผิดพลาด</h3>
+            <p id="error-message" class="text-red-300/80 mb-4"></p>
+            <button onclick="loadData()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+              ลองใหม่
+            </button>
+        </div>
+    </div>
+    
+    <!-- Dashboard Content (Horizontal Scroll) -->
+    <main id="dashboard-content" class="flex-1 p-6 flex gap-6 items-start overflow-auto hidden cursor-grab active:cursor-grabbing select-none">
+      <!-- Content populated by JS -->
+    </main>
+  </div>
+  
+  <script>
+    // Configuration
+    const financeStyles = {
+        "WIN": { bg: "#b8b8b8", text: "#ff0000" },
+        "TB": { bg: "#4c7abd", text: "#ffff00" },
+        "SCB": { bg: "#713896", text: "#ffc200" },
+        "KB": { bg: "#4ab958", text: "#ffffff" },
+        "KK": { bg: "#cec1d6", text: "#432856" },
+        "NL": { bg: "#f2f2f2", text: "#b71100" },
+        "TIL": { bg: "#ff1800", text: "#afff00" },
+        "NISSAN": { bg: "#f2f2f2", text: "#b71100" },
+        "Krungsri": { bg: "#ffb600", text: "#3d3a34" },
+        "ซื้อสด": { bg: "#acd037", text: "#000000" },
+        "Other": { bg: "#e5e7eb", text: "#374151" }
+    };
+
+    const statusConfig = {
+        "จอง": { color: "bg-blue-100 text-blue-800 border-blue-400", icon: "fa-bookmark" },
+        "รอเอกสาร": { color: "bg-yellow-100 text-yellow-800 border-yellow-400", icon: "fa-file-invoice" },
+        "รออนุมัติ": { color: "bg-orange-100 text-orange-800 border-orange-400", icon: "fa-clock" },
+        "รอเซนสัญญา": { color: "bg-purple-100 text-purple-800 border-purple-400", icon: "fa-file-signature" },
+        "อนุมัติ-รอส่งมอบ": { color: "bg-teal-100 text-teal-800 border-teal-400", icon: "fa-check-double" },
+        "ซื้อสด-รอส่งมอบ": { color: "bg-lime-100 text-lime-800 border-lime-400", icon: "fa-money-bill-wave" },
+        "ส่งมอบแล้ว": { color: "bg-green-500 text-white border-green-700", icon: "fa-flag-checkered" },
+        "ยกเลิกเคส": { color: "bg-red-100 text-red-800 border-red-400", icon: "fa-ban" },
+        "ไม่ผ่านเงื่อนไข / คุณสมบัติไม่ครบ": { color: "bg-gray-200 text-gray-700 border-gray-400", icon: "fa-user-slash" },
+        "รีเจค": { color: "bg-red-600 text-white border-red-800", icon: "fa-circle-xmark" },
+        "อื่นๆ": { color: "bg-gray-100 text-gray-800 border-gray-300", icon: "fa-question" }
+    };
+    
+    // Status keys order for consistent display
+    const statusOrder = [
+        "จอง", "รอเอกสาร", "รออนุมัติ", "รอเซนสัญญา", "อนุมัติ-รอส่งมอบ", 
+        "ซื้อสด-รอส่งมอบ", "ส่งมอบแล้ว", "ยกเลิกเคส", 
+        "ไม่ผ่านเงื่อนไข / คุณสมบัติไม่ครบ", "รีเจค", "อื่นๆ"
+    ];
+    
+    const vividPalette = [
+        { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-400" },
+        { bg: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-400" },
+        { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-400" },
+        { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-400" },
+        { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-400" },
+        { bg: "bg-lime-100", text: "text-lime-700", border: "border-lime-400" },
+        { bg: "bg-fuchsia-100", text: "text-fuchsia-700", border: "border-fuchsia-400" },
+        { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-400" }
+    ];
+
+    // Main Function
+    window.loadData = async function() {
+      const loading = document.getElementById('loading');
+      const content = document.getElementById('dashboard-content');
+      const errorState = document.getElementById('error-state');
+      const monthFilter = document.getElementById('month-filter');
+      
+      loading.classList.remove('hidden');
+      content.classList.add('hidden');
+      errorState.classList.add('hidden');
+      
+      try {
+        const month = monthFilter.value;
+        const response = await fetch(`/api/sheets/booking-summary?month=${month}`);
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load data');
+        }
+        
+        renderDashboard(result.summary);
+        loading.classList.add('hidden');
+        content.classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        loading.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        document.getElementById('error-message').textContent = error.message;
+      }
+    };
+
+    function renderDashboard(summary) {
+        const container = document.getElementById('dashboard-content');
+        container.innerHTML = '';
+        
+        const branches = ['รวมทั้งหมด', ...Object.keys(summary.byBranch).filter(b => b !== 'รวมทั้งหมด')];
+        
+        branches.forEach(branchKey => {
+            const data = branchKey === 'รวมทั้งหมด' ? summary.total : summary.byBranch[branchKey];
+            
+            if (branchKey !== 'รวมทั้งหมด' && data.totalCases === 0) return;
+            
+            const card = document.createElement('div');
+            card.className = "card-width bg-white rounded-2xl shadow-xl flex flex-col border border-gray-200 flex-shrink-0 h-fit mb-4 hover:shadow-2xl transition-shadow duration-300";
+            
+            // Header
+            const headerDiv = document.createElement('div');
+            headerDiv.className = "vivid-gradient text-white p-4 text-center shadow-md rounded-t-2xl relative";
+            headerDiv.innerHTML = `
+                <div class="absolute top-0 left-0 w-full h-full bg-black opacity-10 rounded-t-2xl"></div>
+                <h2 class="text-2xl font-black relative z-10 uppercase tracking-wide drop-shadow-md">${branchKey}</h2>
+            `;
+            
+            // Content
+            const contentDiv = document.createElement('div');
+            contentDiv.className = "p-4 space-y-5 bg-white relative z-0 rounded-b-2xl";
+            
+            // Part 1: Big Stats
+            const statsHTML = `
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition duration-200">
+                        <div class="text-sm font-bold uppercase opacity-80 mb-2">เคสทั้งหมด</div>
+                        <div class="text-big">${data.totalCases}</div>
+                    </div>
+                    <div class="bg-emerald-500 text-white p-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition duration-200">
+                        <div class="text-sm font-bold uppercase opacity-80 mb-2">ซื้อเงินสด</div>
+                        <div class="text-big">${data.cashPurchase}</div>
+                    </div>
+                </div>
+            `;
+            
+            // Part 2: Finance (Grid Layout)
+            let financeHTML = `
+                <div class="pt-2">
+                    <h3 class="font-bold text-gray-800 border-b-2 border-gray-200 pb-1 mb-3 text-base flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        ข้อมูลไฟแนนซ์
+                    </h3>
+                    <div class="grid grid-cols-4 gap-2">
+            `;
+            
+            Object.keys(financeStyles).forEach(fin => {
+                const count = data.finance[fin] || 0;
+                const style = financeStyles[fin];
+                
+                financeHTML += `
+                    <div class="flex flex-col items-center justify-center rounded-xl p-2 shadow-md border-2 border-white/50 transform hover:scale-105 transition-transform text-center min-h-[70px]" 
+                         style="background-color: ${style.bg};">
+                        <div class="font-bold text-[10px] uppercase truncate w-full drop-shadow-sm leading-tight" style="color: ${style.text};">${fin}</div>
+                        <div class="font-black text-2xl leading-none mt-1" style="color: ${style.text};">${count}</div>
+                    </div>
+                `;
+            });
+            financeHTML += `</div></div>`;
+            
+            // Part 3: Status
+            let statusHTML = `
+                <div class="mt-4">
+                    <h3 class="font-bold text-gray-800 border-b-2 border-gray-200 pb-1 mb-3 text-base flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        สถานะเคส
+                    </h3>
+                    <div class="grid grid-cols-1 gap-2">
+            `;
+            
+            statusOrder.forEach(status => {
+                const count = data.status[status] || 0;
+                const conf = statusConfig[status] || statusConfig["อื่นๆ"];
+                
+                statusHTML += `
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg border-l-4 shadow-sm ${conf.color} bg-opacity-80">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                             <div class="w-2 h-2 rounded-full bg-current opacity-50"></div>
+                            <span class="text-sm font-bold truncate leading-tight">${status}</span>
+                        </div>
+                        <span class="font-black text-xl">${count}</span>
+                    </div>
+                `;
+            });
+            statusHTML += `</div></div>`;
+            
+            // Part 4: Source (สังกัด)
+            let sourceHTML = `
+                <div class="mt-4">
+                    <h3 class="font-bold text-gray-800 border-b-2 border-gray-200 pb-1 mb-3 text-base flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        สังกัด
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+            `;
+            
+            const sortedSources = Object.entries(data.source).sort((a,b) => b[1] - a[1]);
+            
+            if (sortedSources.length === 0) {
+                sourceHTML += `<div class="col-span-2 text-center text-gray-400 text-sm italic py-2">ไม่มีข้อมูลสังกัด</div>`;
+            } else {
+                sortedSources.forEach(([sourceName, count], index) => {
+                    const style = vividPalette[index % vividPalette.length];
+                    sourceHTML += `
+                        <div class="flex items-center justify-between p-2 rounded-lg border-2 shadow-sm ${style.bg} ${style.border} ${style.text}">
+                             <div class="flex items-center gap-2 overflow-hidden">
+                                <span class="text-[11px] font-bold truncate leading-tight" title="${sourceName}">${sourceName}</span>
+                            </div>
+                            <span class="font-black text-lg bg-white/50 px-2 rounded-md">${count}</span>
+                        </div>
+                    `;
+                });
+            }
+            sourceHTML += `</div></div>`;
+            
+            // Part 5: Brands & Models
+            let vehicleHTML = `
+                <div class="mt-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-700 border-b pb-1 mb-3 text-sm flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        ยี่ห้อรถ
+                    </h3>
+                    <div class="flex flex-wrap gap-2 mb-4">
+            `;
+            
+             if(Object.keys(data.brands).length === 0) {
+                 vehicleHTML += `<span class="text-gray-400 text-xs italic">ไม่มีข้อมูล</span>`;
+             } else {
+                 const sortedBrands = Object.entries(data.brands).sort((a,b) => b[1] - a[1]);
+                 for(const [brand, count] of sortedBrands) {
+                    vehicleHTML += `
+                        <div class="flex flex-col items-center bg-slate-800 text-white rounded-lg p-2 min-w-[60px] shadow-md border-b-4 border-slate-600">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">${brand}</span>
+                            <span class="text-xl font-black leading-tight text-yellow-400">${count}</span>
+                        </div>
+                    `;
+                 }
+             }
+             vehicleHTML += `</div>`;
+             
+             // Table
+             vehicleHTML += `
+                <div class="overflow-hidden border border-gray-300 rounded-lg shadow-inner bg-white">
+                    <table class="min-w-full text-xs text-left">
+                        <thead class="bg-gray-200 font-bold text-gray-700 uppercase">
+                            <tr>
+                                <th class="px-3 py-2 whitespace-nowrap">ยี่ห้อ</th>
+                                <th class="px-3 py-2 w-full">รุ่น</th>
+                                <th class="px-3 py-2 text-center whitespace-nowrap">จำนวน</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+             `;
+             
+             const sortedModels = data.models || []; // Already sorted in API
+             if(sortedModels.length === 0) {
+                 vehicleHTML += `<tr><td colspan="3" class="px-3 py-4 text-center text-gray-400">ไม่มีข้อมูลรุ่นรถ</td></tr>`;
+             } else {
+                 sortedModels.forEach((item, idx) => {
+                     const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                     vehicleHTML += `
+                        <tr class="${rowBg} hover:bg-indigo-50 transition-colors">
+                            <td class="px-3 py-2 font-bold whitespace-nowrap text-[11px] text-indigo-900">${item.brand}</td>
+                            <td class="px-3 py-2 text-gray-600 text-[11px] font-medium">${item.model || "-"}</td>
+                            <td class="px-3 py-2 text-center">
+                                <span class="inline-block px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-[10px] border border-indigo-200">
+                                    ${item.count}
+                                </span>
+                            </td>
+                        </tr>
+                     `;
+                 });
+             }
+             vehicleHTML += `</tbody></table></div></div>`;
+            
+            contentDiv.innerHTML = statsHTML + financeHTML + statusHTML + sourceHTML + vehicleHTML;
+            
+            card.appendChild(headerDiv);
+            card.appendChild(contentDiv);
+            container.appendChild(card);
+        });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set current month if possible, default is 01
+      const now = new Date();
+      // const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+      // document.getElementById('month-filter').value = currentMonth;
+      
+      loadData();
+      
+      // Listen for month filter change
+      document.getElementById('month-filter').addEventListener('change', loadData);
+
+      // Drag to scroll logic
+      const slider = document.getElementById('dashboard-content');
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.add('active');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('active');
+      });
+
+      slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('active');
+      });
+
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll-fast multiplier
+        slider.scrollLeft = scrollLeft - walk;
+      });
+    });
+  </script>
+</MainLayout>

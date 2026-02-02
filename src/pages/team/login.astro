@@ -1,0 +1,179 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Team Login - ISUZU STC">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-gray-800/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-gray-700/50">
+      <div>
+        <div class="flex justify-center mb-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <h2 class="text-center text-3xl font-extrabold text-white">
+          Team Dashboard
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-400">
+          เข้าสู่ระบบสำหรับทีมงาน STC
+        </p>
+      </div>
+      
+      <form class="mt-8 space-y-6" id="loginForm">
+        <div class="rounded-md shadow-sm space-y-4">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">อีเมล</label>
+            <input 
+              id="email" 
+              name="email" 
+              type="email" 
+              autocomplete="email" 
+              required 
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-600 placeholder-gray-500 text-white bg-gray-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+              placeholder="your@email.com"
+            >
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-300 mb-1">รหัสผ่าน</label>
+            <input 
+              id="password" 
+              name="password" 
+              type="password" 
+              autocomplete="current-password" 
+              required 
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-600 placeholder-gray-500 text-white bg-gray-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+              placeholder="••••••••"
+            >
+          </div>
+        </div>
+
+        <div>
+          <button 
+            type="submit" 
+            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg"
+          >
+            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+              <svg class="h-5 w-5 text-blue-300 group-hover:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+              </svg>
+            </span>
+            เข้าสู่ระบบ
+          </button>
+        </div>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-600"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-gray-800/80 text-gray-400">หรือ</span>
+        </div>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button 
+        id="googleSignIn" 
+        type="button" 
+        class="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-600 rounded-lg bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-md"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        <span class="text-gray-700 font-medium">เข้าสู่ระบบด้วย Google</span>
+      </button>
+
+      <div id="message" class="text-center text-sm text-red-400 mt-2 min-h-[20px]"></div>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  const loginForm = document.getElementById('loginForm');
+  const messageEl = document.getElementById('message');
+  const googleSignInBtn = document.getElementById('googleSignIn');
+
+  // Check if already logged in
+  async function checkExistingSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      // Already logged in, set cookies and redirect
+      const maxAge = 60 * 60 * 24 * 7;
+      document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+      document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+      window.location.href = '/team/dashboard';
+    }
+  }
+  checkExistingSession();
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!messageEl) return;
+      messageEl.textContent = 'กำลังเข้าสู่ระบบ...';
+      messageEl.className = 'text-center text-sm text-blue-400 mt-2 min-h-[20px]';
+
+      const formData = new FormData(e.target as HTMLFormElement);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        messageEl.textContent = error.message;
+        messageEl.className = 'text-center text-sm text-red-400 mt-2 min-h-[20px]';
+      } else if (data.session) {
+        const maxAge = 60 * 60 * 24 * 7; // 7 days
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        
+        messageEl.textContent = 'สำเร็จ! กำลังเข้าสู่ระบบ...';
+        messageEl.className = 'text-center text-sm text-green-400 mt-2 min-h-[20px]';
+        
+        setTimeout(() => {
+          window.location.href = '/team/dashboard';
+        }, 500);
+      }
+    });
+  }
+
+  // Google Sign In
+  if (googleSignInBtn) {
+    googleSignInBtn.addEventListener('click', async () => {
+      if (messageEl) {
+        messageEl.textContent = 'กำลังเปลี่ยนเส้นทาง...';
+        messageEl.className = 'text-center text-sm text-blue-400 mt-2 min-h-[20px]';
+      }
+      
+      // Redirect to callback page to handle OAuth response
+      const redirectUrl = window.location.origin + '/team/callback';
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+
+      if (error && messageEl) {
+        messageEl.textContent = error.message;
+        messageEl.className = 'text-center text-sm text-red-400 mt-2 min-h-[20px]';
+      }
+    });
+  }
+</script>

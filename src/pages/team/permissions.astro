@@ -1,0 +1,509 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="จัดการสิทธิ์เมนู - ISUZU STC">
+  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900">
+    <!-- Header -->
+    <header class="bg-gray-800/50 backdrop-blur-lg border-b border-gray-700/50 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-4">
+            <a href="/team/builder" class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </a>
+            <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-white">จัดการสิทธิ์เมนู</h1>
+              <p class="text-xs text-gray-400">Menu Permissions Manager</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Access Denied -->
+    <div id="accessDenied" class="hidden max-w-7xl mx-auto px-4 py-20 text-center">
+      <div class="w-20 h-20 mx-auto bg-red-500/20 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">ไม่มีสิทธิ์เข้าถึง</h2>
+      <p class="text-gray-400 mb-6">เฉพาะ Superuser เท่านั้น</p>
+      <a href="/team/dashboard" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+        กลับไปหน้า Dashboard
+      </a>
+    </div>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400">Team Users</p>
+              <p id="userCount" class="text-2xl font-bold text-white">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400">เมนูทั้งหมด</p>
+              <p id="menuCount" class="text-2xl font-bold text-white">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-gray-400">เมนูจำกัดสิทธิ์</p>
+              <p id="restrictedCount" class="text-2xl font-bold text-white">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Menu Items Panel -->
+        <div class="bg-gray-800/50 rounded-2xl border border-gray-700/50 overflow-hidden">
+          <div class="p-4 border-b border-gray-700/50 bg-gray-800/80">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+              </svg>
+              รายการเมนู
+            </h2>
+            <p class="text-sm text-gray-400 mt-1">เลือกเมนูเพื่อกำหนดสิทธิ์</p>
+          </div>
+          <div id="menuList" class="p-4 space-y-2 max-h-[500px] overflow-y-auto">
+            <div class="text-center py-8 text-gray-500">กำลังโหลด...</div>
+          </div>
+        </div>
+
+        <!-- Permissions Panel -->
+        <div class="bg-gray-800/50 rounded-2xl border border-gray-700/50 overflow-hidden">
+          <div class="p-4 border-b border-gray-700/50 bg-gray-800/80">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+              </svg>
+              กำหนดสิทธิ์
+            </h2>
+            <p id="selectedMenuTitle" class="text-sm text-gray-400 mt-1">เลือกเมนูจากด้านซ้าย</p>
+          </div>
+          <div id="permissionsPanel" class="p-4">
+            <div id="noMenuSelected" class="text-center py-12 text-gray-500">
+              <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+              </svg>
+              <p>เลือกเมนูเพื่อกำหนดสิทธิ์</p>
+            </div>
+            
+            <div id="permissionsEditor" class="hidden space-y-4">
+              <!-- Visibility Mode -->
+              <div class="bg-gray-700/30 rounded-xl p-4">
+                <label class="block text-sm font-medium text-gray-300 mb-3">โหมดการแสดงผล</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all visibility-option" data-mode="public">
+                    <input type="radio" name="visibilityMode" value="public" class="hidden">
+                    <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-medium text-white">สาธารณะ</div>
+                      <div class="text-xs text-gray-400">ทุกคนเห็น</div>
+                    </div>
+                  </label>
+                  <label class="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all visibility-option" data-mode="restricted">
+                    <input type="radio" name="visibilityMode" value="restricted" class="hidden">
+                    <div class="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-medium text-white">จำกัดสิทธิ์</div>
+                      <div class="text-xs text-gray-400">เฉพาะคนที่เลือก</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- User List (for restricted mode) -->
+              <div id="userListSection" class="hidden bg-gray-700/30 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <label class="text-sm font-medium text-gray-300">เลือก Users ที่มีสิทธิ์</label>
+                  <button id="selectAllBtn" class="text-xs text-blue-400 hover:text-blue-300">เลือกทั้งหมด</button>
+                </div>
+                <div id="userCheckboxList" class="space-y-2 max-h-[250px] overflow-y-auto">
+                  <!-- Users will be loaded here -->
+                </div>
+              </div>
+
+              <!-- Save Button -->
+              <button id="savePermissionsBtn" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                บันทึกสิทธิ์
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</MainLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  let currentUser: any = null;
+  let userRole: string = 'user';
+  let selectedMenuItem: any = null;
+  let teamUsers: any[] = [];
+  let allMenuItems: any[] = [];
+
+  const accessDenied = document.getElementById('accessDenied');
+  const mainContent = document.getElementById('mainContent');
+  const menuList = document.getElementById('menuList');
+  const permissionsEditor = document.getElementById('permissionsEditor');
+  const noMenuSelected = document.getElementById('noMenuSelected');
+  const selectedMenuTitle = document.getElementById('selectedMenuTitle');
+  const userListSection = document.getElementById('userListSection');
+  const userCheckboxList = document.getElementById('userCheckboxList');
+
+  // Init
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      window.location.href = '/team/login';
+      return;
+    }
+
+    currentUser = session.user;
+    await checkUserRole();
+
+    if (userRole !== 'superuser') {
+      accessDenied?.classList.remove('hidden');
+      return;
+    }
+
+    mainContent?.classList.remove('hidden');
+    await loadData();
+  }
+
+  async function checkUserRole() {
+    const superuserEmails = ['stc.bandu@gmail.com'];
+    
+    if (superuserEmails.includes(currentUser.email || '')) {
+      userRole = 'superuser';
+      return;
+    }
+
+    const { data } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', currentUser.id)
+      .single();
+
+    if (data?.role) userRole = data.role;
+  }
+
+  async function loadData() {
+    // Load menu items
+    const { data: boxes } = await supabase
+      .from('dashboard_boxes')
+      .select(`*, dashboard_menu_items (*)`)
+      .order('position');
+
+    allMenuItems = [];
+    (boxes || []).forEach(box => {
+      (box.dashboard_menu_items || []).forEach((item: any) => {
+        allMenuItems.push({ ...item, boxTitle: box.title });
+      });
+    });
+
+    // Load team users
+    const { data: users } = await supabase
+      .from('team_users')
+      .select('*')
+      .eq('is_active', true)
+      .order('email');
+
+    teamUsers = users || [];
+
+    // Update stats
+    const userCountEl = document.getElementById('userCount');
+    const menuCountEl = document.getElementById('menuCount');
+    const restrictedCountEl = document.getElementById('restrictedCount');
+    
+    if (userCountEl) userCountEl.textContent = teamUsers.length.toString();
+    if (menuCountEl) menuCountEl.textContent = allMenuItems.length.toString();
+    if (restrictedCountEl) {
+      const restricted = allMenuItems.filter(m => m.visibility_mode === 'restricted').length;
+      restrictedCountEl.textContent = restricted.toString();
+    }
+
+    renderMenuList();
+    renderUserCheckboxes();
+  }
+
+  function renderMenuList() {
+    if (!menuList) return;
+
+    if (allMenuItems.length === 0) {
+      menuList.innerHTML = '<div class="text-center py-8 text-gray-500">ไม่มีเมนู</div>';
+      return;
+    }
+
+    // Group by box
+    const grouped: Record<string, any[]> = {};
+    allMenuItems.forEach(item => {
+      if (!grouped[item.boxTitle]) grouped[item.boxTitle] = [];
+      grouped[item.boxTitle].push(item);
+    });
+
+    let html = '';
+    Object.entries(grouped).forEach(([boxTitle, items]) => {
+      html += `<div class="mb-4">
+        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">${boxTitle}</div>`;
+      
+      items.forEach(item => {
+        const isRestricted = item.visibility_mode === 'restricted';
+        const badge = isRestricted 
+          ? '<span class="px-2 py-0.5 text-xs bg-amber-500/20 text-amber-400 rounded-full">จำกัด</span>'
+          : '<span class="px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded-full">สาธารณะ</span>';
+        
+        html += `
+          <button 
+            class="menu-item-btn w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-700/50 transition-colors text-left"
+            data-id="${item.id}"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon || 'M13 7l5 5m0 0l-5 5m5-5H6'}"></path>
+                </svg>
+              </div>
+              <span class="text-white font-medium">${item.title}</span>
+            </div>
+            ${badge}
+          </button>`;
+      });
+      html += '</div>';
+    });
+
+    menuList.innerHTML = html;
+
+    // Add click handlers
+    document.querySelectorAll('.menu-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        selectMenuItem(id);
+        
+        // Update active state
+        document.querySelectorAll('.menu-item-btn').forEach(b => b.classList.remove('bg-blue-600/20', 'ring-1', 'ring-blue-500'));
+        btn.classList.add('bg-blue-600/20', 'ring-1', 'ring-blue-500');
+      });
+    });
+  }
+
+  function renderUserCheckboxes() {
+    if (!userCheckboxList) return;
+
+    if (teamUsers.length === 0) {
+      userCheckboxList.innerHTML = '<div class="text-center py-4 text-gray-500 text-sm">ยังไม่มี Users (Users จะปรากฏหลังจากล็อคอินครั้งแรก)</div>';
+      return;
+    }
+
+    userCheckboxList.innerHTML = teamUsers.map(user => `
+      <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-600/30 cursor-pointer">
+        <input type="checkbox" class="user-checkbox w-4 h-4 rounded text-amber-500 focus:ring-amber-500 bg-gray-700 border-gray-600" data-user-id="${user.user_id}">
+        <img src="${user.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email)}" class="w-8 h-8 rounded-full" alt="">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-white truncate">${user.display_name || user.email}</div>
+          <div class="text-xs text-gray-400 truncate">${user.email}</div>
+        </div>
+      </label>
+    `).join('');
+  }
+
+  async function selectMenuItem(id: string | null) {
+    if (!id) return;
+
+    selectedMenuItem = allMenuItems.find(m => m.id === id);
+    if (!selectedMenuItem) return;
+
+    noMenuSelected?.classList.add('hidden');
+    permissionsEditor?.classList.remove('hidden');
+    
+    if (selectedMenuTitle) {
+      selectedMenuTitle.textContent = `เมนู: ${selectedMenuItem.title}`;
+    }
+
+    // Set visibility mode
+    const mode = selectedMenuItem.visibility_mode || 'public';
+    document.querySelectorAll('.visibility-option').forEach(opt => {
+      const optMode = opt.getAttribute('data-mode');
+      if (optMode === mode) {
+        opt.classList.add('border-amber-500', 'bg-amber-500/10');
+        opt.classList.remove('border-gray-600');
+        (opt.querySelector('input') as HTMLInputElement).checked = true;
+      } else {
+        opt.classList.remove('border-amber-500', 'bg-amber-500/10');
+        opt.classList.add('border-gray-600');
+      }
+    });
+
+    // Show/hide user list
+    if (mode === 'restricted') {
+      userListSection?.classList.remove('hidden');
+    } else {
+      userListSection?.classList.add('hidden');
+    }
+
+    // Load permissions for this menu
+    const { data: perms } = await supabase
+      .from('menu_item_permissions')
+      .select('user_id')
+      .eq('menu_item_id', id)
+      .eq('can_view', true);
+
+    const allowedUserIds = (perms || []).map(p => p.user_id);
+
+    // Check the checkboxes
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+      const userId = checkbox.getAttribute('data-user-id');
+      (checkbox as HTMLInputElement).checked = allowedUserIds.includes(userId);
+    });
+  }
+
+  // Visibility mode toggle
+  document.querySelectorAll('.visibility-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const mode = opt.getAttribute('data-mode');
+      
+      document.querySelectorAll('.visibility-option').forEach(o => {
+        o.classList.remove('border-amber-500', 'bg-amber-500/10');
+        o.classList.add('border-gray-600');
+      });
+      opt.classList.add('border-amber-500', 'bg-amber-500/10');
+      opt.classList.remove('border-gray-600');
+
+      if (mode === 'restricted') {
+        userListSection?.classList.remove('hidden');
+      } else {
+        userListSection?.classList.add('hidden');
+      }
+    });
+  });
+
+  // Select all
+  document.getElementById('selectAllBtn')?.addEventListener('click', () => {
+    document.querySelectorAll('.user-checkbox').forEach(cb => {
+      (cb as HTMLInputElement).checked = true;
+    });
+  });
+
+  // Save permissions
+  document.getElementById('savePermissionsBtn')?.addEventListener('click', async () => {
+    if (!selectedMenuItem) return;
+
+    const btn = document.getElementById('savePermissionsBtn');
+    if (btn) btn.textContent = 'กำลังบันทึก...';
+
+    try {
+      // Get selected mode
+      const modeInput = document.querySelector('input[name="visibilityMode"]:checked') as HTMLInputElement;
+      const mode = modeInput?.value || 'public';
+
+      // Update visibility mode
+      await supabase
+        .from('dashboard_menu_items')
+        .update({ visibility_mode: mode })
+        .eq('id', selectedMenuItem.id);
+
+      // If restricted, update permissions
+      if (mode === 'restricted') {
+        // Delete old permissions
+        await supabase
+          .from('menu_item_permissions')
+          .delete()
+          .eq('menu_item_id', selectedMenuItem.id);
+
+        // Insert new permissions
+        const selectedUserIds: string[] = [];
+        document.querySelectorAll('.user-checkbox:checked').forEach(cb => {
+          const userId = cb.getAttribute('data-user-id');
+          if (userId) selectedUserIds.push(userId);
+        });
+
+        if (selectedUserIds.length > 0) {
+          const permsToInsert = selectedUserIds.map(userId => ({
+            menu_item_id: selectedMenuItem.id,
+            user_id: userId,
+            can_view: true
+          }));
+
+          await supabase.from('menu_item_permissions').insert(permsToInsert);
+        }
+      }
+
+      // Update local data
+      selectedMenuItem.visibility_mode = mode;
+      
+      // Reload UI
+      renderMenuList();
+      
+      // Update stats
+      const restrictedCountEl = document.getElementById('restrictedCount');
+      if (restrictedCountEl) {
+        const restricted = allMenuItems.filter(m => m.visibility_mode === 'restricted').length;
+        restrictedCountEl.textContent = restricted.toString();
+      }
+
+      if (btn) {
+        btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> บันทึกสำเร็จ!';
+        setTimeout(() => {
+          btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> บันทึกสิทธิ์';
+        }, 2000);
+      }
+
+    } catch (err) {
+      console.error('Save error:', err);
+      if (btn) btn.textContent = 'เกิดข้อผิดพลาด';
+    }
+  });
+
+  init();
+</script>
