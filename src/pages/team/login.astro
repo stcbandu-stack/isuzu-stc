@@ -105,11 +105,22 @@ import MainLayout from '../../layouts/MainLayout.astro';
   async function checkExistingSession() {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      // Already logged in, set cookies and redirect
-      const maxAge = 60 * 60 * 24 * 7;
-      document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
-      document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
-      window.location.href = '/team/dashboard';
+      // Verify session is actually valid before redirecting
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (user && !error) {
+        // Session is valid, set cookies and redirect
+        const maxAge = 60 * 60 * 24 * 7;
+        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        window.location.href = '/team/dashboard';
+      } else {
+        // Session is invalid/expired, clear it to prevent loop
+        console.log('Session invalid, signing out...');
+        await supabase.auth.signOut();
+        // Clear any stale cookies
+        document.cookie = 'sb-access-token=; path=/; max-age=0';
+        document.cookie = 'sb-refresh-token=; path=/; max-age=0';
+      }
     }
   }
   checkExistingSession();

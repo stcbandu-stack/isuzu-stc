@@ -49,13 +49,8 @@
     <p class="message" id="message"></p>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-    const supabaseUrl = 'https://dcigpisivgpofeljvoph.supabase.co';
-    const supabaseAnonKey = 'sb_publishable_ccUnFtL3x-8eV8exjy4oIw__JiDK4VK';
-    
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  <script>
+    import { supabase } from '../../lib/supabase';
     
     const statusEl = document.getElementById('status');
     const messageEl = document.getElementById('message');
@@ -75,8 +70,8 @@
           document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
           document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
           
-          statusEl.textContent = 'เข้าสู่ระบบสำเร็จ!';
-          messageEl.textContent = 'กำลังเปลี่ยนหน้า...';
+          if (statusEl) statusEl.textContent = 'เข้าสู่ระบบสำเร็จ!';
+          if (messageEl) messageEl.textContent = 'กำลังเปลี่ยนหน้า...';
           
           // Redirect to dashboard
           setTimeout(() => {
@@ -84,19 +79,23 @@
           }, 500);
         } else {
           // No session, redirect to login
-          statusEl.textContent = 'ไม่พบ Session';
-          statusEl.classList.add('error');
-          messageEl.textContent = 'กำลังกลับไปหน้าเข้าสู่ระบบ...';
+          if (statusEl) {
+            statusEl.textContent = 'ไม่พบ Session';
+            statusEl.classList.add('error');
+          }
+          if (messageEl) messageEl.textContent = 'กำลังกลับไปหน้าเข้าสู่ระบบ...';
           
           setTimeout(() => {
             window.location.href = '/team/login';
           }, 2000);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Callback error:', err);
-        statusEl.textContent = 'เกิดข้อผิดพลาด';
-        statusEl.classList.add('error');
-        messageEl.textContent = err.message || 'กรุณาลองใหม่อีกครั้ง';
+        if (statusEl) {
+          statusEl.textContent = 'เกิดข้อผิดพลาด';
+          statusEl.classList.add('error');
+        }
+        if (messageEl) messageEl.textContent = err.message || 'กรุณาลองใหม่อีกครั้ง';
         
         setTimeout(() => {
           window.location.href = '/team/login';

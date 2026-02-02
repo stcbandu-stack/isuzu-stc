@@ -43,10 +43,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
             const { data: { user }, error } = await supabase.auth.getUser();
             
             if (error || !user) {
+                // Clear invalid cookies to prevent redirect loop
+                cookies.delete('sb-access-token', { path: '/' });
+                cookies.delete('sb-refresh-token', { path: '/' });
                 return redirect("/admin/login");
             }
         } catch (err) {
             console.error('Auth error:', err);
+            // Clear cookies on error
+            cookies.delete('sb-access-token', { path: '/' });
+            cookies.delete('sb-refresh-token', { path: '/' });
             return redirect("/admin/login");
         }
     }
@@ -87,10 +93,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
             const { data: { user }, error } = await supabase.auth.getUser();
             
             if (error || !user) {
+                // Clear invalid cookies to prevent redirect loop
+                cookies.delete('sb-access-token', { path: '/' });
+                cookies.delete('sb-refresh-token', { path: '/' });
                 return redirect("/team/login");
             }
         } catch (err) {
             console.error('Team auth error:', err);
+            // Clear cookies on error
+            cookies.delete('sb-access-token', { path: '/' });
+            cookies.delete('sb-refresh-token', { path: '/' });
             return redirect("/team/login");
         }
     }
