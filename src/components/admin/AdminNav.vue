@@ -36,7 +36,7 @@
 
 <script setup>
 import { ref, onMounted, h } from 'vue';
-import { supabase } from '../../lib/supabase';
+import { supabase, signOutAndClearStorage } from '../../lib/supabase';
 
 const currentPath = ref('');
 
@@ -55,7 +55,7 @@ onMounted(() => {
 });
 
 const logout = async () => {
-  await supabase.auth.signOut();
+  await signOutAndClearStorage();
   window.location.href = '/admin/login';
 };
 </script>

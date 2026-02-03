@@ -39,7 +39,7 @@ import AdminNav from "../../components/admin/AdminNav.vue";
 </MainLayout>
 
 <script>
-  import { supabase } from "../../lib/supabase";
+  import { supabase, signOutAndClearStorage } from "../../lib/supabase";
 
   // Check Auth
   const checkAuth = async () => {
@@ -63,7 +63,7 @@ import AdminNav from "../../components/admin/AdminNav.vue";
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
-      await supabase.auth.signOut();
+      await signOutAndClearStorage();
       window.location.href = "/admin/login";
     });
   }
