@@ -1,0 +1,842 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+// Check authentication
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const accessToken = Astro.cookies.get('sb-access-token')?.value;
+const refreshToken = Astro.cookies.get('sb-refresh-token')?.value;
+
+if (!accessToken || !refreshToken) {
+  return Astro.redirect('/team/login?redirect=/team/newcar-online-tracking');
+}
+
+let user = null;
+const { data: sessionData, error } = await supabase.auth.setSession({
+  access_token: accessToken,
+  refresh_token: refreshToken,
+});
+
+if (error) {
+  const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({
+    refresh_token: refreshToken,
+  });
+  
+  if (refreshError || !refreshData?.session) {
+    Astro.cookies.delete('sb-access-token', { path: '/' });
+    Astro.cookies.delete('sb-refresh-token', { path: '/' });
+    return Astro.redirect('/team/login?redirect=/team/newcar-online-tracking');
+  }
+  
+  Astro.cookies.set('sb-access-token', refreshData.session.access_token, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+  Astro.cookies.set('sb-refresh-token', refreshData.session.refresh_token, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+  
+  user = refreshData.session.user;
+} else {
+  user = sessionData?.user;
+}
+
+if (!user) {
+  return Astro.redirect('/team/login?redirect=/team/newcar-online-tracking');
+}
+
+// Thai month names
+const months = [
+  { value: '01', name: 'มกราคม' },
+  { value: '02', name: 'กุมภาพันธ์' },
+  { value: '03', name: 'มีนาคม' },
+  { value: '04', name: 'เมษายน' },
+  { value: '05', name: 'พฤษภาคม' },
+  { value: '06', name: 'มิถุนายน' },
+  { value: '07', name: 'กรกฎาคม' },
+  { value: '08', name: 'สิงหาคม' },
+  { value: '09', name: 'กันยายน' },
+  { value: '10', name: 'ตุลาคม' },
+  { value: '11', name: 'พฤศจิกายน' },
+  { value: '12', name: 'ธันวาคม' },
+];
+---
+
+<MainLayout title="ติดตามลูกค้ารถใหม่ ออนไลน์ 2569 | Team Dashboard">
+  <style is:global>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Sarabun', sans-serif;
+    }
+    
+    /* Modern Scrollbar - Red Theme */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(244, 63, 94, 0.1);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #f43f5e, #e11d48);
+      border-radius: 10px;
+    }
+
+    /* Stats Card Animation */
+    .stat-card {
+      transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Summary Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .summary-grid-lg {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Pivot Table Styles - Red Theme */
+    .pivot-table {
+      border-collapse: collapse;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .pivot-table th {
+      background: linear-gradient(135deg, #be123c, #9f1239);
+      color: white;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      white-space: nowrap;
+    }
+
+    .pivot-table td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .pivot-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .pivot-table tbody tr:hover {
+      background: #ffe4e6;
+    }
+
+    /* Sticky first column */
+    .pivot-table th:nth-child(1),
+    .pivot-table td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #ffffff;
+      min-width: 200px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .pivot-table th:nth-child(1) {
+      background: linear-gradient(135deg, #be123c, #9f1239);
+      z-index: 15;
+    }
+
+    .pivot-table tbody tr:nth-child(even) td:nth-child(1) {
+      background: #f8fafc;
+    }
+
+    .pivot-table tbody tr:hover td:nth-child(1) {
+      background: #ffe4e6;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .number-badge {
+      background-color: #ffe4e6;
+      color: #9f1239;
+      font-weight: 800;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 14px;
+      display: inline-block;
+      min-width: 28px;
+    }
+
+    .number-badge-lg {
+      background-color: #fecdd3;
+      color: #881337;
+      font-weight: 900;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 16px;
+      display: inline-block;
+      min-width: 36px;
+    }
+  </style>
+
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-rose-900 to-slate-800">
+    <!-- Header -->
+    <header class="bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <a href="/team/dashboard" class="text-white/70 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+            </a>
+            <div class="flex items-center">
+              <div class="bg-gradient-to-br from-rose-500 to-red-600 text-white p-3 rounded-xl mr-3 shadow-lg">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <div>
+                <h1 class="text-xl font-extrabold text-white tracking-tight">ติดตามลูกค้าจากสื่อออนไลน์ รถใหม่ ปี 2569</h1>
+                <p class="text-sm text-white/60">New Car Online Customer Tracking Dashboard</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Month Filter -->
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-rose-900/50 p-2 rounded-xl border border-rose-500/30">
+              <label for="month-filter" class="font-bold text-rose-200 text-sm">เดือน:</label>
+              <select id="month-filter" class="bg-slate-800 border-rose-500/50 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-rose-500 font-semibold text-sm">
+                {months.map(m => (
+                  <option value={m.value}>{m.name}</option>
+                ))}
+              </select>
+            </div>
+            <button onclick="loadData()" class="flex items-center gap-2 bg-gradient-to-r from-rose-600 to-red-600 text-white px-5 py-2.5 rounded-xl hover:from-rose-700 hover:to-red-700 transition shadow-lg font-bold transform active:scale-95">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              โหลดข้อมูล
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Loading State -->
+    <div id="loading" class="flex items-center justify-center min-h-[60vh]">
+      <div class="flex flex-col items-center justify-center text-white/50">
+        <svg class="w-16 h-16 animate-spin mb-4 text-rose-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-xl font-semibold animate-pulse">กำลังโหลดข้อมูล...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden flex items-center justify-center min-h-[60vh] p-8">
+      <div class="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 max-w-md mx-auto text-center">
+        <svg class="w-20 h-20 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="text-xl font-bold text-white mb-2">เกิดข้อผิดพลาด</h3>
+        <p id="error-message" class="text-red-300/80 mb-4"></p>
+        <button onclick="loadData()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+          ลองใหม่
+        </button>
+      </div>
+    </div>
+    
+    <!-- Dashboard Content -->
+    <main id="dashboard-content" class="hidden container mx-auto px-4 py-6 space-y-8">
+      
+      <!-- Section 1: Total + Grade -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-rose-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+          ภาพรวมลูกค้าที่สนใจ + เกรดลูกค้า
+        </h2>
+        <div id="total-grade-section" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+      </section>
+
+      <!-- Section 2: Case Status + Update -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-orange-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          สถานะการติดตามเคส / สถานะอัพเดตล่าสุด
+        </h2>
+        <div id="status-update-section" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+      </section>
+
+      <!-- Section 3: Province + District -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-purple-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          จังหวัด / อำเภอ ของลูกค้า
+        </h2>
+        <div id="province-section"></div>
+      </section>
+
+      <!-- Section 4: Customer Job -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-cyan-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          อาชีพของลูกค้า
+        </h2>
+        <div id="job-section" class="summary-grid"></div>
+      </section>
+
+      <!-- Section 5: Sales Response Time -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-pink-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          อัตราการตอบรับลูกค้าของเซลล์ (คำนวณจากเวลาส่งเคส → เวลารับเคส)
+        </h2>
+        <div id="response-section" class="summary-grid-lg"></div>
+      </section>
+
+      <!-- Section 6: Customer Source -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-amber-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+          </div>
+          แหล่งที่มาของลูกค้า
+        </h2>
+        <div id="source-section" class="summary-grid"></div>
+      </section>
+
+      <!-- Section 7: Car Interest Table -->
+      <section class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div class="bg-teal-500/20 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+            </svg>
+          </div>
+          รุ่นรถที่ลูกค้าสนใจ
+        </h2>
+        <div id="car-interest-section"></div>
+      </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-black/30 border-t border-white/10 py-4 mt-8">
+      <div class="container mx-auto px-4 text-center text-white/40 text-sm">
+        © 2569 STC New Car Online Tracking Dashboard | Last Updated: <span id="last-updated">-</span>
+      </div>
+    </footer>
+  </div>
+
+  <script is:inline>
+    // Color configs
+    const gradeColors = {
+      'A': { bg: 'from-emerald-500 to-emerald-600', text: 'text-white' },
+      'B': { bg: 'from-blue-500 to-blue-600', text: 'text-white' },
+      'C': { bg: 'from-amber-500 to-amber-600', text: 'text-white' },
+      'D': { bg: 'from-orange-500 to-orange-600', text: 'text-white' },
+      'F': { bg: 'from-red-500 to-red-600', text: 'text-white' },
+    };
+    
+    const statusColors = [
+      { bg: 'from-blue-500 to-blue-600' },
+      { bg: 'from-emerald-500 to-emerald-600' },
+      { bg: 'from-amber-500 to-amber-600' },
+      { bg: 'from-purple-500 to-purple-600' },
+      { bg: 'from-pink-500 to-pink-600' },
+      { bg: 'from-cyan-500 to-cyan-600' },
+      { bg: 'from-orange-500 to-orange-600' },
+      { bg: 'from-rose-500 to-rose-600' },
+      { bg: 'from-teal-500 to-teal-600' },
+      { bg: 'from-indigo-500 to-indigo-600' },
+    ];
+    
+    const provinceColors = [
+      { bg: 'from-violet-500 to-violet-700' },
+      { bg: 'from-fuchsia-500 to-fuchsia-700' },
+      { bg: 'from-pink-500 to-pink-700' },
+      { bg: 'from-rose-500 to-rose-700' },
+      { bg: 'from-indigo-500 to-indigo-700' },
+      { bg: 'from-cyan-500 to-cyan-700' },
+    ];
+
+    window.loadData = async function() {
+      const loading = document.getElementById('loading');
+      const content = document.getElementById('dashboard-content');
+      const errorState = document.getElementById('error-state');
+      const monthFilter = document.getElementById('month-filter');
+      
+      loading.classList.remove('hidden');
+      content.classList.add('hidden');
+      errorState.classList.add('hidden');
+      
+      try {
+        const month = monthFilter.value;
+        const response = await fetch(`/api/sheets/newcar-online-tracking?month=${month}`);
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load data');
+        }
+        
+        renderDashboard(result.summary);
+        loading.classList.add('hidden');
+        content.classList.remove('hidden');
+        
+        document.getElementById('last-updated').textContent = new Date().toLocaleString('th-TH');
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        loading.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        document.getElementById('error-message').textContent = error.message;
+      }
+    };
+
+    function renderDashboard(summary) {
+      renderTotalAndGrade(summary);
+      renderStatusAndUpdate(summary);
+      renderProvince(summary);
+      renderJobs(summary);
+      renderResponseTime(summary);
+      renderSource(summary);
+      renderCarInterest(summary);
+    }
+
+    function renderTotalAndGrade(summary) {
+      const container = document.getElementById('total-grade-section');
+      
+      // นับจำนวนที่ยังไม่ได้ประเมิน
+      const notRatedCount = summary.gradeCount['ยังไม่ได้ประเมิน'] || 0;
+      
+      // Total Card - Red Theme
+      let html = `
+        <div class="stat-card bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-8 text-white text-center shadow-2xl">
+          <div class="text-lg font-bold uppercase opacity-80 mb-2">ยอดลูกค้าสนใจทั้งหมด</div>
+          <div class="text-7xl font-black mb-2">${summary.totalCustomers}</div>
+          <div class="text-sm opacity-70">คน</div>
+        </div>
+      `;
+      
+      // Grade Cards - 5 เกรด + ยังไม่ได้ประเมิน
+      html += `<div class="space-y-3">`;
+      html += `<div class="grid grid-cols-5 gap-3">`;
+      ['A', 'B', 'C', 'D', 'F'].forEach(grade => {
+        const count = summary.gradeCount[grade] || 0;
+        const colors = gradeColors[grade];
+        html += `
+          <div class="stat-card bg-gradient-to-br ${colors.bg} rounded-xl p-4 ${colors.text} text-center shadow-lg">
+            <div class="text-3xl font-black">${grade}</div>
+            <div class="text-4xl font-black mt-2">${count}</div>
+            <div class="text-xs opacity-70 mt-1">คน</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+      
+      // ยังไม่ได้ประเมิน
+      if (notRatedCount > 0) {
+        html += `
+          <div class="stat-card bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl p-3 text-white flex items-center justify-between shadow-lg">
+            <span class="font-semibold">ยังไม่ได้ประเมิน</span>
+            <span class="text-2xl font-black bg-white/20 px-4 py-1 rounded-lg">${notRatedCount} <span class="text-sm font-normal">คน</span></span>
+          </div>
+        `;
+      }
+      html += `</div>`;
+      
+      container.innerHTML = html;
+    }
+
+    function renderStatusAndUpdate(summary) {
+      const container = document.getElementById('status-update-section');
+      
+      // Status Section
+      let html = `
+        <div class="bg-white/10 rounded-xl p-4">
+          <h3 class="text-white font-bold mb-4 text-lg border-b border-white/20 pb-2">สถานะการติดตามเคส</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      `;
+      
+      const sortedStatus = Object.entries(summary.statusCount).sort((a, b) => b[1] - a[1]);
+      sortedStatus.forEach(([status, count], idx) => {
+        // สถานะ "หลุด" = สีแดง (เชิงลบ)
+        let color;
+        if (status === 'หลุด') {
+          color = { bg: 'from-red-600 to-red-700' };
+        } else {
+          color = statusColors[idx % statusColors.length];
+        }
+        html += `
+          <div class="stat-card bg-gradient-to-r ${color.bg} rounded-lg p-3 text-white flex items-center justify-between shadow-md">
+            <span class="text-sm font-semibold truncate pr-2">${status || 'ไม่ระบุ'}</span>
+            <span class="text-2xl font-black bg-white/20 px-3 py-1 rounded-lg">${count}</span>
+          </div>
+        `;
+      });
+      if (sortedStatus.length === 0) {
+        html += `<div class="text-white/50 text-center col-span-2 py-4">ไม่มีข้อมูล</div>`;
+      }
+      html += `</div></div>`;
+      
+      // Update Section
+      html += `
+        <div class="bg-white/10 rounded-xl p-4">
+          <h3 class="text-white font-bold mb-4 text-lg border-b border-white/20 pb-2">สถานะอัพเดตล่าสุด</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      `;
+      
+      const sortedUpdate = Object.entries(summary.updateCount).sort((a, b) => b[1] - a[1]);
+      sortedUpdate.forEach(([update, count], idx) => {
+        const color = statusColors[(idx + 3) % statusColors.length];
+        html += `
+          <div class="stat-card bg-gradient-to-r ${color.bg} rounded-lg p-3 text-white flex items-center justify-between shadow-md">
+            <span class="text-sm font-semibold truncate pr-2">${update || 'ไม่ระบุ'}</span>
+            <span class="text-2xl font-black bg-white/20 px-3 py-1 rounded-lg">${count}</span>
+          </div>
+        `;
+      });
+      if (sortedUpdate.length === 0) {
+        html += `<div class="text-white/50 text-center col-span-2 py-4">ไม่มีข้อมูล</div>`;
+      }
+      html += `</div></div>`;
+      
+      container.innerHTML = html;
+    }
+
+    // Store all provinces data for toggle
+    let allProvincesData = null;
+    let showingAllProvinces = false;
+    
+    function renderProvince(summary) {
+      const container = document.getElementById('province-section');
+      const sortedProvinces = Object.entries(summary.provinceCount).sort((a, b) => b[1] - a[1]);
+      
+      if (sortedProvinces.length === 0) {
+        container.innerHTML = `<div class="text-white/50 text-center py-8">ไม่มีข้อมูลจังหวัด</div>`;
+        return;
+      }
+      
+      // Store for toggle
+      allProvincesData = { sortedProvinces, districtByProvince: summary.districtByProvince };
+      showingAllProvinces = false;
+      
+      // แสดงแค่ 5 จังหวัดแรก
+      const displayProvinces = sortedProvinces.slice(0, 5);
+      const hasMore = sortedProvinces.length > 5;
+      
+      let html = renderProvinceCards(displayProvinces, summary.districtByProvince);
+      
+      if (hasMore) {
+        html += `
+          <div class="text-center mt-4">
+            <button onclick="toggleAllProvinces()" id="province-toggle-btn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition transform active:scale-95">
+              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+              ดูทั้งหมด (${sortedProvinces.length} จังหวัด)
+            </button>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    function renderProvinceCards(provinces, districtByProvince) {
+      let html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="province-grid">`;
+      
+      provinces.forEach(([province, count], idx) => {
+        const color = provinceColors[idx % provinceColors.length];
+        const districts = districtByProvince[province] || {};
+        const sortedDistricts = Object.entries(districts).sort((a, b) => b[1] - a[1]);
+        
+        html += `
+          <div class="stat-card bg-white rounded-xl overflow-hidden shadow-lg">
+            <div class="bg-gradient-to-r ${color.bg} text-white p-4 flex items-center justify-between">
+              <span class="font-bold text-lg">${province}</span>
+              <span class="text-3xl font-black">${count}</span>
+            </div>
+            <div class="p-3 bg-gray-50 max-h-32 overflow-y-auto">
+              <div class="flex flex-wrap gap-2">
+                ${sortedDistricts.length > 0 
+                  ? sortedDistricts.map(([district, dCount]) => `
+                    <span class="px-2 py-1 bg-white rounded-lg text-xs font-semibold text-gray-700 border border-gray-200 shadow-sm">
+                      ${district} <span class="text-rose-600 font-bold">(${dCount})</span>
+                    </span>
+                  `).join('')
+                  : '<span class="text-gray-400 text-xs">ไม่ระบุอำเภอ</span>'
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `</div>`;
+      return html;
+    }
+    
+    window.toggleAllProvinces = function() {
+      if (!allProvincesData) return;
+      
+      const container = document.getElementById('province-section');
+      showingAllProvinces = !showingAllProvinces;
+      
+      if (showingAllProvinces) {
+        // แสดงทั้งหมด
+        let html = renderProvinceCards(allProvincesData.sortedProvinces, allProvincesData.districtByProvince);
+        html += `
+          <div class="text-center mt-4">
+            <button onclick="toggleAllProvinces()" id="province-toggle-btn" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition transform active:scale-95">
+              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+              </svg>
+              ซ่อนข้อมูล
+            </button>
+          </div>
+        `;
+        container.innerHTML = html;
+      } else {
+        // แสดง 5 แรก
+        const displayProvinces = allProvincesData.sortedProvinces.slice(0, 5);
+        let html = renderProvinceCards(displayProvinces, allProvincesData.districtByProvince);
+        html += `
+          <div class="text-center mt-4">
+            <button onclick="toggleAllProvinces()" id="province-toggle-btn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition transform active:scale-95">
+              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+              ดูทั้งหมด (${allProvincesData.sortedProvinces.length} จังหวัด)
+            </button>
+          </div>
+        `;
+        container.innerHTML = html;
+      }
+    }
+
+    function renderJobs(summary) {
+      const container = document.getElementById('job-section');
+      const sortedJobs = Object.entries(summary.jobCount).sort((a, b) => b[1] - a[1]);
+      
+      if (sortedJobs.length === 0) {
+        container.innerHTML = `<div class="text-white/50 text-center py-8 col-span-full">ไม่มีข้อมูลอาชีพ</div>`;
+        return;
+      }
+      
+      let html = '';
+      sortedJobs.forEach(([job, count], idx) => {
+        const color = statusColors[idx % statusColors.length];
+        html += `
+          <div class="stat-card bg-gradient-to-r ${color.bg} rounded-xl p-4 text-white flex items-center justify-between gap-3 shadow-lg">
+            <span class="font-semibold break-words leading-tight">${job || 'ไม่ระบุ'}</span>
+            <span class="text-3xl font-black bg-white/20 px-4 py-1 rounded-lg flex-shrink-0">${count}</span>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    function renderResponseTime(summary) {
+      const container = document.getElementById('response-section');
+      const responseData = Object.entries(summary.salesResponseTime);
+      
+      if (responseData.length === 0) {
+        container.innerHTML = `<div class="text-white/50 text-center py-8 col-span-full">ไม่มีข้อมูลเซลล์</div>`;
+        return;
+      }
+      
+      // คำนวณค่าเฉลี่ยรวมทั้งหมด (เฉพาะที่มีข้อมูลเวลา)
+      let totalMinutesAll = 0;
+      let totalCountAll = 0;
+      let totalCasesAll = 0;
+      responseData.forEach(([_, data]) => {
+        totalMinutesAll += data.totalMinutes;
+        totalCountAll += data.count;
+        totalCasesAll += data.totalCases || 0;
+      });
+      const overallAvg = totalCountAll > 0 ? totalMinutesAll / totalCountAll : 0;
+      
+      // Sort โดยเรียงจากเร็วไปช้า (sales ที่ยังไม่มีข้อมูลจะอยู่ท้าย)
+      const sortedResponse = responseData.sort((a, b) => {
+        // ถ้าไม่มีข้อมูลเวลา ให้อยู่ท้าย
+        if (a[1].count === 0 && b[1].count === 0) return 0;
+        if (a[1].count === 0) return 1;
+        if (b[1].count === 0) return -1;
+        return a[1].avgMinutes - b[1].avgMinutes;
+      });
+      
+      let html = '';
+      sortedResponse.forEach(([sales, data]) => {
+        const avgMin = data.avgMinutes;
+        const hasTimeData = data.count > 0;
+        
+        let bgColor, label, timeDisplay, percentFromAvg;
+        
+        if (hasTimeData) {
+          // คำนวณ % เทียบกับค่าเฉลี่ยรวม
+          percentFromAvg = overallAvg > 0 ? Math.round((avgMin / overallAvg) * 100) : 100;
+          
+          bgColor = 'from-emerald-500 to-emerald-600';
+          label = 'เร็วมาก';
+          if (percentFromAvg > 50 && percentFromAvg <= 80) { bgColor = 'from-green-500 to-green-600'; label = 'เร็ว'; }
+          else if (percentFromAvg > 80 && percentFromAvg <= 100) { bgColor = 'from-teal-500 to-teal-600'; label = 'ปกติ'; }
+          else if (percentFromAvg > 100 && percentFromAvg <= 150) { bgColor = 'from-amber-500 to-amber-600'; label = 'ช้ากว่าเฉลี่ย'; }
+          else if (percentFromAvg > 150 && percentFromAvg <= 200) { bgColor = 'from-orange-500 to-orange-600'; label = 'ช้า'; }
+          else if (percentFromAvg > 200) { bgColor = 'from-red-500 to-red-600'; label = 'ช้ามาก'; }
+          
+          const hours = Math.floor(avgMin / 60);
+          const mins = Math.round(avgMin % 60);
+          timeDisplay = hours > 0 ? `${hours} ชม. ${mins} นาที` : `${mins} นาที`;
+        } else {
+          // ไม่มีข้อมูลเวลา
+          bgColor = 'from-gray-500 to-gray-600';
+          label = 'รอข้อมูล';
+          timeDisplay = 'ยังไม่มีข้อมูล';
+          percentFromAvg = '-';
+        }
+        
+        html += `
+          <div class="stat-card bg-gradient-to-r ${bgColor} rounded-xl p-4 text-white shadow-lg">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-lg break-words leading-tight pr-2">${sales || 'ไม่ระบุ'}</span>
+              <span class="text-xs bg-white/20 px-2 py-1 rounded-full flex-shrink-0">${label}</span>
+            </div>
+            <div class="text-3xl font-black">${timeDisplay}</div>
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-sm opacity-80">${data.count}/${data.totalCases || data.count} เคส</span>
+              ${hasTimeData ? `<span class="text-xs bg-black/20 px-2 py-1 rounded">${percentFromAvg}%</span>` : ''}
+            </div>
+          </div>
+        `;
+      });
+      
+      // แสดงค่าเฉลี่ยรวม
+      const avgHours = Math.floor(overallAvg / 60);
+      const avgMins = Math.round(overallAvg % 60);
+      const avgDisplay = avgHours > 0 ? `${avgHours} ชม. ${avgMins} นาที` : `${avgMins} นาที`;
+      html = `
+        <div class="col-span-full mb-4 p-4 bg-white/10 rounded-xl border border-white/20 text-center">
+          <span class="text-white/70 text-sm">ค่าเฉลี่ยการตอบรับทั้งหมด:</span>
+          <span class="text-white font-bold text-xl ml-2">${totalCountAll > 0 ? avgDisplay : 'ยังไม่มีข้อมูล'}</span>
+          <span class="text-white/50 text-sm ml-2">(${totalCountAll}/${totalCasesAll} เคสที่มีข้อมูล)</span>
+        </div>
+      ` + html;
+      
+      container.innerHTML = html;
+    }
+
+    function renderSource(summary) {
+      const container = document.getElementById('source-section');
+      const sortedSource = Object.entries(summary.sourceCount).sort((a, b) => b[1] - a[1]);
+      
+      if (sortedSource.length === 0) {
+        container.innerHTML = `<div class="text-white/50 text-center py-8 col-span-full">ไม่มีข้อมูลแหล่งที่มา</div>`;
+        return;
+      }
+      
+      let html = '';
+      sortedSource.forEach(([source, count], idx) => {
+        const color = statusColors[idx % statusColors.length];
+        html += `
+          <div class="stat-card bg-gradient-to-r ${color.bg} rounded-xl p-4 text-white flex items-center justify-between shadow-lg">
+            <span class="font-semibold truncate pr-2">${source || 'ไม่ระบุ'}</span>
+            <span class="text-3xl font-black bg-white/20 px-4 py-1 rounded-lg">${count}</span>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    function renderCarInterest(summary) {
+      const container = document.getElementById('car-interest-section');
+      const sortedCars = Object.entries(summary.carInterestCount).sort((a, b) => b[1] - a[1]);
+      
+      if (sortedCars.length === 0) {
+        container.innerHTML = `<div class="text-white/50 text-center py-8">ไม่มีข้อมูลรุ่นรถที่สนใจ</div>`;
+        return;
+      }
+      
+      let html = `
+        <div class="table-wrapper bg-white rounded-xl overflow-hidden shadow-lg">
+          <table class="pivot-table">
+            <thead>
+              <tr>
+                <th>รุ่นรถที่สนใจ</th>
+                <th class="w-28">จำนวน</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      sortedCars.forEach(([car, count], idx) => {
+        html += `
+          <tr>
+            <td class="text-left font-medium text-gray-700">${car || 'ไม่ระบุ'}</td>
+            <td><span class="number-badge">${count}</span></td>
+          </tr>
+        `;
+      });
+      
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      document.getElementById('month-filter').addEventListener('change', loadData);
+    });
+  </script>
+</MainLayout>
