@@ -242,6 +242,19 @@
       </div>
     </Transition>
 
+    <!-- Error Toast -->
+    <Transition name="toast">
+      <div 
+        v-if="showErrorToast" 
+        class="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 max-w-sm"
+      >
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+    </Transition>
+
     <!-- Add/Edit Box Modal -->
     <div v-if="showAddBoxModal || editingBox" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closeBoxModal"></div>
@@ -491,6 +504,8 @@ const dragOverMenuItem = ref<{ boxId: string; index: number } | null>(null);
 
 // Visual Feedback
 const showSuccessToast = ref(false);
+const showErrorToast = ref(false);
+const errorMessage = ref('');
 const lastMovedBoxId = ref<string | null>(null);
 const lastMovedMenuItemId = ref<string | null>(null);
 
@@ -571,7 +586,10 @@ async function onDropBox(event: DragEvent) {
   const fromIndex = draggedBoxIndex.value;
   const toIndex = dragOverBoxIndex.value;
 
-  // Reorder locally
+  // 🔄 Optimistic UI: Save original state for rollback
+  const originalBoxes = JSON.parse(JSON.stringify(boxes.value));
+
+  // Reorder locally FIRST (Optimistic)
   const movedBox = boxes.value.splice(fromIndex, 1)[0];
   boxes.value.splice(toIndex, 0, movedBox);
 
@@ -579,11 +597,18 @@ async function onDropBox(event: DragEvent) {
   lastMovedBoxId.value = movedBox.id;
   setTimeout(() => { lastMovedBoxId.value = null; }, 1500);
 
-  // Update positions in database
-  await saveBoxOrder();
-  showSuccess();
-  
   onDragEnd();
+
+  // Save to server in background
+  try {
+    await saveBoxOrder();
+    showSuccess();
+  } catch (error) {
+    // ❌ Rollback on error
+    console.error('Error saving box order:', error);
+    boxes.value = originalBoxes;
+    showError('ไม่สามารถบันทึกลำดับกล่องได้ กรุณาลองใหม่');
+  }
 }
 
 // ========== DRAG & DROP FOR MENU ITEMS ==========
@@ -620,36 +645,80 @@ async function onDropMenuItem(event: DragEvent, targetBoxId: string) {
   
   if (!sourceBox || !targetBox) return;
 
-  const sortedSource = sortedMenuItems(sourceBox);
-  const movedItem = sortedSource[sourceIndex];
+  // 🔄 Optimistic UI: Save original state for rollback
+  const originalSourceItems = JSON.parse(JSON.stringify(sourceBox.dashboard_menu_items || []));
+  const originalTargetItems = sourceBoxId !== targetBoxId 
+    ? JSON.parse(JSON.stringify(targetBox.dashboard_menu_items || [])) 
+    : null;
 
+  const sortedSource = sortedMenuItems(sourceBox);
+  const movedItem = { ...sortedSource[sourceIndex] };
+
+  // Highlight moved item
+  lastMovedMenuItemId.value = movedItem.id;
+  setTimeout(() => { lastMovedMenuItemId.value = null; }, 1500);
+
+  // Apply changes locally FIRST (Optimistic)
   if (sourceBoxId === targetBoxId) {
     // Same box - just reorder
     const items = [...sortedSource];
     items.splice(sourceIndex, 1);
     items.splice(targetIndex, 0, movedItem);
+    
+    // ⚡ Update position property for each item (critical for proper sorting!)
+    items.forEach((item, i) => {
+      item.position = i;
+    });
+    
     sourceBox.dashboard_menu_items = items;
-    await saveMenuItemOrder(sourceBox);
   } else {
     // Different box - move item
     movedItem.box_id = targetBoxId;
-    sourceBox.dashboard_menu_items = sortedSource.filter(i => i.id !== movedItem.id);
     
+    // Update source box
+    const newSourceItems = sortedSource.filter(i => i.id !== movedItem.id);
+    newSourceItems.forEach((item, i) => {
+      item.position = i;
+    });
+    sourceBox.dashboard_menu_items = newSourceItems;
+    
+    // Update target box
     const targetItems = sortedMenuItems(targetBox);
     targetItems.splice(targetIndex, 0, movedItem);
+    targetItems.forEach((item, i) => {
+      item.position = i;
+    });
     targetBox.dashboard_menu_items = targetItems;
-
-    // Update box_id in DB
-    await supabase
-      .from('dashboard_menu_items')
-      .update({ box_id: targetBoxId })
-      .eq('id', movedItem.id);
-
-    await saveMenuItemOrder(targetBox);
-    await saveMenuItemOrder(sourceBox);
   }
 
   onDragEnd();
+
+  // Save to server in background
+  try {
+    if (sourceBoxId === targetBoxId) {
+      await saveMenuItemOrder(sourceBox);
+    } else {
+      // Update box_id in DB
+      const { error: updateError } = await supabase
+        .from('dashboard_menu_items')
+        .update({ box_id: targetBoxId })
+        .eq('id', movedItem.id);
+      
+      if (updateError) throw updateError;
+
+      await saveMenuItemOrder(targetBox);
+      await saveMenuItemOrder(sourceBox);
+    }
+    showSuccess();
+  } catch (error) {
+    // ❌ Rollback on error
+    console.error('Error saving menu order:', error);
+    sourceBox.dashboard_menu_items = originalSourceItems;
+    if (originalTargetItems !== null) {
+      targetBox.dashboard_menu_items = originalTargetItems;
+    }
+    showError('ไม่สามารถบันทึกลำดับเมนูได้ กรุณาลองใหม่');
+  }
 }
 
 function onDragEnd() {
@@ -663,6 +732,10 @@ function onDragEnd() {
 
 async function moveBoxUp(index: number) {
   if (index <= 0) return;
+  
+  // 🔄 Optimistic UI: Save original state for rollback
+  const originalBoxes = JSON.parse(JSON.stringify(boxes.value));
+  
   const movedBox = boxes.value[index];
   boxes.value[index] = boxes.value[index - 1];
   boxes.value[index - 1] = movedBox;
@@ -671,12 +744,24 @@ async function moveBoxUp(index: number) {
   lastMovedBoxId.value = movedBox.id;
   setTimeout(() => { lastMovedBoxId.value = null; }, 1500);
   
-  await saveBoxOrder();
-  showSuccess();
+  // Save in background
+  try {
+    await saveBoxOrder();
+    showSuccess();
+  } catch (error) {
+    // ❌ Rollback on error
+    console.error('Error moving box up:', error);
+    boxes.value = originalBoxes;
+    showError('ไม่สามารถเลื่อนกล่องได้ กรุณาลองใหม่');
+  }
 }
 
 async function moveBoxDown(index: number) {
   if (index >= boxes.value.length - 1) return;
+  
+  // 🔄 Optimistic UI: Save original state for rollback
+  const originalBoxes = JSON.parse(JSON.stringify(boxes.value));
+  
   const movedBox = boxes.value[index];
   boxes.value[index] = boxes.value[index + 1];
   boxes.value[index + 1] = movedBox;
@@ -685,38 +770,88 @@ async function moveBoxDown(index: number) {
   lastMovedBoxId.value = movedBox.id;
   setTimeout(() => { lastMovedBoxId.value = null; }, 1500);
   
-  await saveBoxOrder();
-  showSuccess();
+  // Save in background
+  try {
+    await saveBoxOrder();
+    showSuccess();
+  } catch (error) {
+    // ❌ Rollback on error
+    console.error('Error moving box down:', error);
+    boxes.value = originalBoxes;
+    showError('ไม่สามารถเลื่อนกล่องได้ กรุณาลองใหม่');
+  }
 }
 
 async function moveMenuItemUp(box: Box, index: number) {
   const items = sortedMenuItems(box);
   if (index <= 0) return;
+  
+  // 🔄 Optimistic UI: Save original state for rollback
+  const originalItems = JSON.parse(JSON.stringify(box.dashboard_menu_items || []));
+  
   const movedItem = items[index];
-  items[index] = items[index - 1];
+  const swappedItem = items[index - 1];
+  
+  // Swap items in array
+  items[index] = swappedItem;
   items[index - 1] = movedItem;
+  
+  // ⚡ Update position property for each item (critical for proper sorting!)
+  items.forEach((item, i) => {
+    item.position = i;
+  });
+  
   box.dashboard_menu_items = [...items]; // Force reactivity
   
   lastMovedMenuItemId.value = movedItem.id;
   setTimeout(() => { lastMovedMenuItemId.value = null; }, 1500);
   
-  await saveMenuItemOrder(box);
-  showSuccess();
+  // Save in background
+  try {
+    await saveMenuItemOrder(box);
+    showSuccess();
+  } catch (error) {
+    // ❌ Rollback on error
+    console.error('Error moving menu item up:', error);
+    box.dashboard_menu_items = originalItems;
+    showError('ไม่สามารถเลื่อนเมนูได้ กรุณาลองใหม่');
+  }
 }
 
 async function moveMenuItemDown(box: Box, index: number) {
   const items = sortedMenuItems(box);
   if (index >= items.length - 1) return;
+  
+  // 🔄 Optimistic UI: Save original state for rollback
+  const originalItems = JSON.parse(JSON.stringify(box.dashboard_menu_items || []));
+  
   const movedItem = items[index];
-  items[index] = items[index + 1];
+  const swappedItem = items[index + 1];
+  
+  // Swap items in array
+  items[index] = swappedItem;
   items[index + 1] = movedItem;
+  
+  // ⚡ Update position property for each item (critical for proper sorting!)
+  items.forEach((item, i) => {
+    item.position = i;
+  });
+  
   box.dashboard_menu_items = [...items]; // Force reactivity
   
   lastMovedMenuItemId.value = movedItem.id;
   setTimeout(() => { lastMovedMenuItemId.value = null; }, 1500);
   
-  await saveMenuItemOrder(box);
-  showSuccess();
+  // Save in background
+  try {
+    await saveMenuItemOrder(box);
+    showSuccess();
+  } catch (error) {
+    // ❌ Rollback on error
+    console.error('Error moving menu item down:', error);
+    box.dashboard_menu_items = originalItems;
+    showError('ไม่สามารถเลื่อนเมนูได้ กรุณาลองใหม่');
+  }
 }
 
 // ========== SAVE ORDER TO DATABASE ==========
@@ -729,29 +864,43 @@ async function saveBoxOrder() {
     position: index
   }));
 
+  const errors = [];
   for (const update of updates) {
-    await supabase
+    const { error } = await supabase
       .from('dashboard_boxes')
       .update({ position: update.position })
       .eq('id', update.id);
+    
+    if (error) errors.push(error);
   }
 
   savingOrder.value = false;
+  
+  if (errors.length > 0) {
+    throw new Error('Failed to save box order');
+  }
 }
 
 async function saveMenuItemOrder(box: Box) {
   savingOrder.value = true;
   
   const items = box.dashboard_menu_items || [];
+  const errors = [];
   
   for (let i = 0; i < items.length; i++) {
-    await supabase
+    const { error } = await supabase
       .from('dashboard_menu_items')
       .update({ position: i })
       .eq('id', items[i].id);
+    
+    if (error) errors.push(error);
   }
 
   savingOrder.value = false;
+  
+  if (errors.length > 0) {
+    throw new Error('Failed to save menu item order');
+  }
 }
 
 function editBox(box: Box) {
@@ -896,13 +1045,22 @@ async function deleteMenuItem(item: MenuItem) {
   await loadBoxes();
 }
 
-// ========== SHOW SUCCESS TOAST ==========
+// ========== SHOW SUCCESS/ERROR TOAST ==========
 
 function showSuccess() {
   showSuccessToast.value = true;
   setTimeout(() => {
     showSuccessToast.value = false;
   }, 2000);
+}
+
+function showError(message: string) {
+  errorMessage.value = message;
+  showErrorToast.value = true;
+  setTimeout(() => {
+    showErrorToast.value = false;
+    errorMessage.value = '';
+  }, 4000);
 }
 
 // Lifecycle
