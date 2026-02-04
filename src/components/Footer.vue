@@ -126,8 +126,8 @@
           <a href="/policy" class="hover:text-white transition-colors">Privacy Policy</a>
           <a href="/policy" class="hover:text-white transition-colors">Terms of Service</a>
           
-          <!-- Dev Links (only visible for allowed IP or manual trigger) -->
-          <template v-if="isAllowedIP || showDevLinks">
+          <!-- Dev Links (visible via secret trigger only) -->
+          <template v-if="showDevLinks">
             <span class="text-gray-700">|</span>
             <a href="/admin/dashboard" class="text-amber-500/70 hover:text-amber-400 transition-colors flex items-center gap-1">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,12 +218,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onUnmounted } from 'vue';
 
-const isAllowedIP = ref(false);
-const showDevLinks = ref(false); // Manual trigger
+const showDevLinks = ref(false); // Secret trigger
 const showSecretModal = ref(false); // Modal visibility
-const ALLOWED_IPS = ['183.89.209.66'];
 
 // Secret trigger state
 let clickCount = 0;
@@ -274,19 +272,7 @@ function closeSecretModal() {
   showSecretModal.value = false;
 }
 
-onMounted(async () => {
-  try {
-    // Check user's IP via external service
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    
-    if (ALLOWED_IPS.includes(data.ip)) {
-      isAllowedIP.value = true;
-    }
-  } catch (error) {
-    console.log('IP check failed:', error);
-  }
-});
+
 
 onUnmounted(() => {
   if (clickTimer) clearTimeout(clickTimer);

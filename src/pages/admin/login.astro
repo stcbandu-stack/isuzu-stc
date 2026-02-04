@@ -103,7 +103,7 @@ import MainLayout from '../../layouts/MainLayout.astro';
     googleSignInBtn.addEventListener('click', async () => {
       if (messageEl) messageEl.textContent = 'กำลังเปลี่ยนเส้นทาง...';
       
-      const redirectUrl = window.location.origin;
+      const redirectUrl = window.location.origin + '/admin/callback';
       console.log('Starting Google Login with redirect to:', redirectUrl);
 
       const { data, error } = await supabase.auth.signInWithOAuth({
