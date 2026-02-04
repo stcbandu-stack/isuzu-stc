@@ -83,102 +83,22 @@
             </div>
         </div>
 
-        <!-- Interactive Branch Map Section -->
+        <!-- Branch Link CTA -->
         <div class="text-center mb-16 px-4">
             <h2 class="text-4xl md:text-5xl font-black mb-4 uppercase">สาขาใน<span class="text-isuzu-red">เชียงราย</span></h2>
             <div class="w-24 h-1 bg-isuzu-red mx-auto rounded-full mb-6"></div>
-            <p class="text-gray-400 text-lg">ค้นหาโชว์รูมและศูนย์บริการมาตรฐานครบวงจรใกล้บ้านคุณ</p>
-        </div>
-
-        <div class="bg-gray-800/40 rounded-[2.5rem] border border-gray-700 overflow-hidden backdrop-blur-md shadow-2xl flex flex-col lg:flex-row min-h-[650px]">
-            <!-- Left: Selector and Info -->
-            <div class="lg:w-[450px] p-8 md:p-12 flex flex-col justify-center bg-gray-900/30">
-                <div class="space-y-8">
-                    <div>
-                        <label class="block text-xs font-black text-isuzu-red uppercase tracking-[0.2em] mb-4">Select Location</label>
-                        <div class="relative">
-                            <select 
-                                v-model="selectedBranchKey"
-                                class="w-full bg-gray-900 border border-gray-700 rounded-2xl px-6 py-4 text-white appearance-none focus:border-isuzu-red outline-none transition-all cursor-pointer font-bold text-lg"
-                            >
-                                <option v-for="(b, key) in branchData" :key="key" :value="key">
-                                    {{ b.name }}
-                                </option>
-                            </select>
-                            <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-isuzu-red">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Info Cards -->
-                    <div class="space-y-6 animate-fade-in" :key="selectedBranchKey">
-                        <div class="flex gap-5 p-6 bg-gray-900/50 rounded-2xl border border-gray-800 group hover:border-isuzu-red/30 transition-colors">
-                            <div class="flex-shrink-0 w-12 h-12 bg-isuzu-red/10 rounded-xl flex items-center justify-center text-isuzu-red">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            </div>
-                            <div class="flex-1">
-                                <div class="text-xs font-bold text-gray-500 uppercase mb-1">Address</div>
-                                <div class="text-gray-200 leading-relaxed">{{ currentBranch.address }}</div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4">
-                            <!-- Separate Rows to avoid truncation in small widths -->
-                            <div class="flex gap-4 p-5 bg-gray-900/50 rounded-2xl border border-gray-800 group hover:border-isuzu-red/30 transition-colors">
-                                <div class="flex-shrink-0 w-10 h-10 bg-isuzu-red/10 rounded-lg flex items-center justify-center text-isuzu-red">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                                </div>
-                                <div>
-                                    <div class="text-[10px] font-bold text-gray-500 uppercase mb-0.5">Telephone</div>
-                                    <div class="text-gray-200 font-bold">{{ currentBranch.tel }}</div>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 p-5 bg-gray-900/50 rounded-2xl border border-gray-800 group hover:border-isuzu-red/30 transition-colors">
-                                <div class="flex-shrink-0 w-10 h-10 bg-isuzu-red/10 rounded-lg flex items-center justify-center text-isuzu-red">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                                </div>
-                                <div>
-                                    <div class="text-[10px] font-bold text-gray-500 uppercase mb-0.5">Mobile</div>
-                                    <div class="text-gray-200 font-bold">{{ currentBranch.mobile }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <a 
-                            :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentBranch.name + ' ' + currentBranch.address)}`"
-                            target="_blank"
-                            class="w-full py-4 bg-isuzu-red hover:bg-red-700 text-white rounded-2xl font-black text-center transition-all shadow-xl shadow-isuzu-red/20 flex items-center justify-center gap-2 group"
-                        >
-                            เปิดใน Google Maps
-                            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right: Interactive Map - Ensuring full stretch -->
-            <div class="flex-1 min-h-[500px] lg:min-h-full relative bg-gray-900">
-                <div class="absolute inset-0 bg-gray-900 flex items-center justify-center" v-if="loadingMap">
-                    <div class="animate-pulse flex flex-col items-center">
-                        <div class="w-12 h-12 border-4 border-isuzu-red/20 border-t-isuzu-red rounded-full animate-spin"></div>
-                        <span class="mt-4 text-gray-500 font-bold uppercase tracking-widest text-xs">Loading Map...</span>
-                    </div>
-                </div>
-                <iframe 
-                    :key="currentBranch.map"
-                    :src="currentBranch.map" 
-                    class="absolute inset-0 w-full h-full border-none opacity-0 transition-opacity duration-1000"
-                    :class="{ 'opacity-100': !loadingMap }"
-                    allowfullscreen="" 
-                    loading="lazy" 
-                    referrerpolicy="no-referrer-when-downgrade"
-                    @load="loadingMap = false"
-                ></iframe>
-                
-                <!-- Overlay Gradient for seamless look -->
-                <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-gray-900 via-gray-900/20 to-transparent pointer-events-none hidden lg:block"></div>
-            </div>
+            <p class="text-gray-400 text-lg mb-8">ค้นหาโชว์รูมและศูนย์บริการมาตรฐานครบวงจรใกล้บ้านคุณ</p>
+            <a 
+                href="/branch" 
+                class="inline-flex items-center gap-3 px-8 py-4 bg-isuzu-red hover:bg-red-700 text-white rounded-2xl font-black text-lg transition-all shadow-xl shadow-isuzu-red/20 group"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                ดูสาขาทั้งหมด
+                <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
         </div>
     </div>
   </div>
@@ -186,46 +106,6 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-
-const selectedBranchKey = ref('bandu');
-const loadingMap = ref(true);
-
-const branchData = {
-    bandu: {
-      name: 'สำนักงานใหญ่ อ.เมือง บ้านดู่',
-      address: '222 หมู่ 2 ต.บ้านดู่ อ.เมือง จ.เชียงราย 57100',
-      tel: '053-702-666',
-      mobile: '086-429-5060',
-      map: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7500.224788103395!2d99.853615!3d19.961775!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d70735b7513e69%3A0xf2d5f8a9f4c925b7!2z4Lia4LiI4LiBLiDguK3guLXguIvguLnguIvguLjguKrguIfguKfguJnguYTguJfguKLguYDguIrguLXguKLguIfguKPguLLguKIg4Liq4Liz4LiZ4Lix4LiB4LiH4Liy4LiZ4LmD4Lir4LiN4LmIIC0gSXN1enUgU2FuZ3VhbnRoYWkgQ2hpYW5ncmFpIEhRLCDguKjguLnguJnguKLguYzguIvguYjguK3guKHguKrguLXguJXguLHguKfguJbguLHguIfguKHguLLguJXguKPguJDguLLguJnguK3guLXguIvguLnguIvguLg!5e0!3m2!1sth!2sus!4v1763961334628!5m2!1sth!2sus'
-    },
-    phan: {
-      name: 'สาขาพาน',
-      address: '227 หมู่ 17 ต.สันกลาง อ.พาน จ.เชียงราย 57120',
-      tel: '053-722-999',
-      mobile: '086-430-1787',
-      map: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d60142.71206478927!2d99.746625!3d19.587949!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d7718ac1549195%3A0x2eb747765529eb72!2z4Lia4Lij4Li04Lip4Lix4LiXIOC4reC4teC4i-C4ueC4i-C4uOC4quC4h-C4p-C4meC5hOC4l-C4ouC5gOC4iuC4teC4ouC4h-C4o-C4suC4oiDguIjguLPguIHguLHguJQg4Liq4Liy4LiC4Liy4Lie4Liy4LiZ!5e0!3m2!1sth!2sus!4v1763961522327!5m2!1sth!2sus'
-    },
-    maesai: {
-      name: 'สาขาแม่สาย',
-      address: '419 หมู่ 11 ต.ห้วยไคร้ อ.แม่สาย จ.เชียงราย 57220',
-      tel: '053-667-669',
-      mobile: '087-305-1222',
-      map: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d935.5457987099076!2d99.871693!3d20.292683000000004!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d6f7e556969a4b%3A0x2b7a04cbfe701c3c!2z4Lit4Li14LiL4Li54LiL4Li44Liq4LiH4Lin4LiZ4LmE4LiX4Lii4LmA4LiK4Li14Lii4LiH4Lij4Liy4Lii4LiI4Liz4LiB4Lix4LiUIOC4quC4suC4guC4suC5geC4oeC5iOC4quC4suC4og!5e0!3m2!1sth!2sus!4v1763961556451!5m2!1sth!2sus'
-    },
-    maechan: {
-      name: 'สาขาแม่จัน',
-      address: '333 หมู่ 5 ต.จอมสวรรค์ อ.แม่จัน จ.เชียงราย 57110',
-      tel: '053-160-999',
-      mobile: '081-465-7555',
-      map: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d239656.80826767316!2d99.896136!3d20.190808!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d6f9c526d98abf%3A0x1edc2dcc8dbedac6!2z4Lit4Li14LiL4Li54LiL4Li44Liq4LiH4Lin4LiZ4LmE4LiX4Lii4LmA4LiK4Li14Lii4LiH4Lij4Liy4LiiIOC4quC4suC4guC4suC5geC4oeC5iOC4iOC4seC4mQ!5e0!3m2!1sth!2sus!4v1763961576636!5m2!1sth!2sus'
-    }
-};
-
-const currentBranch = computed(() => branchData[selectedBranchKey.value]);
-
-watch(selectedBranchKey, () => {
-    loadingMap.value = true;
-});
 </script>
 
 <style scoped>

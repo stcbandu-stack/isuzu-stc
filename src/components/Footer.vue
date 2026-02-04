@@ -55,6 +55,7 @@
           <ul class="space-y-4">
             <li><a href="/" class="text-gray-400 hover:text-white transition-colors">หน้าหลัก</a></li>
             <li><a href="/trucks" class="text-gray-400 hover:text-white transition-colors">รถบรรทุก</a></li>
+            <li><a href="/branch" class="text-gray-400 hover:text-white transition-colors">สาขาใกล้บ้าน</a></li>
             <li><a href="https://www.isuzu-tis.com/calculator" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">คำนวณค่างวด</a></li>
             <li><a href="https://www.isuzu-tis.com/compare/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition-colors">เปรียบเทียบรุ่น</a></li>
             <li><a href="/about" class="text-gray-400 hover:text-white transition-colors">เกี่ยวกับเรา</a></li>
