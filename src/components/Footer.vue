@@ -146,6 +146,74 @@
         </div>
       </div>
     </div>
+    
+    <!-- Secret Access Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showSecretModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="closeSecretModal"></div>
+          <div class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-md border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 animate-modal-in">
+            <!-- Glow Effect -->
+            <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-transparent to-amber-500/10 blur-xl"></div>
+            
+            <!-- Content -->
+            <div class="relative text-center">
+              <!-- Icon -->
+              <div class="w-20 h-20 mx-auto mb-6 relative">
+                <div class="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping"></div>
+                <div class="relative w-full h-full bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center">
+                  <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+              </div>
+              
+              <!-- Title -->
+              <h3 class="text-2xl font-bold text-white mb-3">
+                🔓 Access Granted
+              </h3>
+              
+              <!-- Message -->
+              <p class="text-gray-300 mb-6 leading-relaxed">
+                เราเปิดทางเข้าให้กับคุณแล้ว<span class="text-emerald-400 font-semibold">แอดมิน</span><br>
+                <span class="text-sm text-gray-400">โปรดล็อกอินเพื่อยืนยันตัวตนอีกครั้งหลังจากคลิกลิงก์</span>
+              </p>
+              
+              <!-- Links -->
+              <div class="flex gap-3 mb-4">
+                <a 
+                  href="/admin/dashboard" 
+                  class="flex-1 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/30"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  Admin
+                </a>
+                <a 
+                  href="/team/dashboard" 
+                  class="flex-1 py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                  Team
+                </a>
+              </div>
+              
+              <!-- Close Button -->
+              <button 
+                @click="closeSecretModal"
+                class="text-gray-500 hover:text-gray-300 text-sm transition-colors"
+              >
+                ปิดหน้าต่างนี้
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </footer>
 </template>
 
@@ -154,6 +222,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 const isAllowedIP = ref(false);
 const showDevLinks = ref(false); // Manual trigger
+const showSecretModal = ref(false); // Modal visibility
 const ALLOWED_IPS = ['183.89.209.66'];
 
 // Secret trigger state
@@ -178,6 +247,7 @@ function onLogoClick() {
   // Check if threshold reached
   if (clickCount >= CLICK_THRESHOLD) {
     showDevLinks.value = true;
+    showSecretModal.value = true; // Show modal on success
     clickCount = 0;
     if (clickTimer) clearTimeout(clickTimer);
   }
@@ -187,6 +257,7 @@ function onLogoClick() {
 function onLogoTouchStart() {
   touchTimer = setTimeout(() => {
     showDevLinks.value = true;
+    showSecretModal.value = true; // Show modal on success
   }, TOUCH_DURATION);
 }
 
@@ -196,6 +267,11 @@ function onLogoTouchEnd() {
     clearTimeout(touchTimer);
     touchTimer = null;
   }
+}
+
+// Close secret modal
+function closeSecretModal() {
+  showSecretModal.value = false;
 }
 
 onMounted(async () => {
@@ -217,3 +293,33 @@ onUnmounted(() => {
   if (touchTimer) clearTimeout(touchTimer);
 });
 </script>
+<style scoped>
+/* Modal Transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .animate-modal-in {
+  animation: modal-in 0.4s ease-out;
+}
+
+@keyframes modal-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+</style>
