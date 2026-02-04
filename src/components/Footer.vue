@@ -5,7 +5,15 @@
         <!-- Brand Column (3 cols) -->
         <div class="lg:col-span-3 space-y-6">
           <div class="flex items-center">
-            <img src="/STC-LOGO-RGB.svg" alt="ISUZU STC" class="h-10 w-auto" />
+            <img 
+              src="/STC-LOGO-RGB.svg" 
+              alt="ISUZU STC" 
+              class="h-10 w-auto cursor-pointer select-none" 
+              @click="onLogoClick"
+              @touchstart="onLogoTouchStart"
+              @touchend="onLogoTouchEnd"
+              @touchcancel="onLogoTouchEnd"
+            />
           </div>
           <p class="text-gray-400 text-sm leading-relaxed">
             อีซูซุสงวนไทยเชียงราย ตัวแทนจำหน่ายรถยนต์อีซูซุมาตรฐานครบวงจร พร้อมศูนย์บริการและอะไหล่แท้ มุ่งมั่นให้บริการด้วยใจเพื่อความพึงพอใจสูงสุดของคุณ
@@ -117,6 +125,24 @@
         <div class="flex space-x-6 mt-4 md:mt-0">
           <a href="/policy" class="hover:text-white transition-colors">Privacy Policy</a>
           <a href="/policy" class="hover:text-white transition-colors">Terms of Service</a>
+          
+          <!-- Dev Links (only visible for allowed IP or manual trigger) -->
+          <template v-if="isAllowedIP || showDevLinks">
+            <span class="text-gray-700">|</span>
+            <a href="/admin/dashboard" class="text-amber-500/70 hover:text-amber-400 transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              Admin
+            </a>
+            <a href="/team/dashboard" class="text-emerald-500/70 hover:text-emerald-400 transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              Team
+            </a>
+          </template>
         </div>
       </div>
     </div>
@@ -124,4 +150,70 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+
+const isAllowedIP = ref(false);
+const showDevLinks = ref(false); // Manual trigger
+const ALLOWED_IPS = ['183.89.209.66'];
+
+// Secret trigger state
+let clickCount = 0;
+let clickTimer = null;
+let touchTimer = null;
+const CLICK_THRESHOLD = 5;
+const CLICK_TIMEOUT = 2000; // 2 seconds to complete 5 clicks
+const TOUCH_DURATION = 5000; // 5 seconds hold
+
+// Logo click handler (5 clicks to reveal)
+function onLogoClick() {
+  clickCount++;
+  
+  // Reset timer on each click
+  if (clickTimer) clearTimeout(clickTimer);
+  
+  clickTimer = setTimeout(() => {
+    clickCount = 0;
+  }, CLICK_TIMEOUT);
+  
+  // Check if threshold reached
+  if (clickCount >= CLICK_THRESHOLD) {
+    showDevLinks.value = true;
+    clickCount = 0;
+    if (clickTimer) clearTimeout(clickTimer);
+  }
+}
+
+// Touch start handler (5 second hold to reveal)
+function onLogoTouchStart() {
+  touchTimer = setTimeout(() => {
+    showDevLinks.value = true;
+  }, TOUCH_DURATION);
+}
+
+// Touch end/cancel handler
+function onLogoTouchEnd() {
+  if (touchTimer) {
+    clearTimeout(touchTimer);
+    touchTimer = null;
+  }
+}
+
+onMounted(async () => {
+  try {
+    // Check user's IP via external service
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    
+    if (ALLOWED_IPS.includes(data.ip)) {
+      isAllowedIP.value = true;
+    }
+  } catch (error) {
+    console.log('IP check failed:', error);
+  }
+});
+
+onUnmounted(() => {
+  if (clickTimer) clearTimeout(clickTimer);
+  if (touchTimer) clearTimeout(touchTimer);
+});
 </script>
