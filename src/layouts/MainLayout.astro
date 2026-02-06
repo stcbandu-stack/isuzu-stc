@@ -2,6 +2,7 @@
 import Navbar from '../components/Navbar.vue';
 import Footer from '../components/Footer.vue';
 import ToastContainer from '../components/ui/ToastContainer.vue';
+import CookieConsent from '../components/CookieConsent.vue';
 
 interface Props {
   title?: string;
@@ -43,14 +44,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://www.isuz
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/stc-logo.svg" />
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QK22Y7CLLR"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-QK22Y7CLLR');
-    </script>
+    <!-- Google Analytics - Loaded conditionally via CookieConsent component after user approval -->
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,5 +59,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://www.isuz
     </main>
     <ToastContainer client:idle />
     <Footer client:visible />
+    <CookieConsent client:load />
   </body>
 </html>
