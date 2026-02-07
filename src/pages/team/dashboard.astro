@@ -80,13 +80,19 @@ import MainLayout from '../../layouts/MainLayout.astro';
 </MainLayout>
 
 <style is:global>
-  /* Dashboard Box Styles */
+  .dashboard-box-wrapper {
+    height: 100%;
+  }
+
   .dashboard-box {
     background: linear-gradient(135deg, rgba(55, 65, 81, 0.8), rgba(31, 41, 55, 0.9));
     border: 1px solid rgba(75, 85, 99, 0.5);
     border-radius: 1rem;
     padding: 1.5rem;
     transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
   
   .dashboard-box:hover {
