@@ -54,6 +54,21 @@ import MainLayout from '../../layouts/MainLayout.astro';
         </a>
       </div>
 
+      <!-- Year Tabs -->
+      <div id="yearTabsContainer" class="hidden mb-8">
+        <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="text-sm font-medium text-gray-300">เลือกดูข้อมูลตามปี</span>
+          </div>
+          <div id="yearTabsButtons" class="flex flex-wrap gap-2">
+            <!-- Year tab buttons will be inserted here -->
+          </div>
+        </div>
+      </div>
+
       <!-- Dashboard Boxes Container -->
       <div id="dashboardContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Loading State -->
@@ -121,6 +136,9 @@ import MainLayout from '../../layouts/MainLayout.astro';
   // State
   let currentUser: any = null;
   let userRole: string = 'user';
+  let allBoxes: any[] = [];
+  let yearTabs: any[] = [];
+  let selectedYearTabId: string | null = null;
 
   // Elements
   const userEmailEl = document.getElementById('userEmail');
@@ -130,6 +148,8 @@ import MainLayout from '../../layouts/MainLayout.astro';
   const dashboardContent = document.getElementById('dashboardContent');
   const loadingState = document.getElementById('loadingState');
   const emptyState = document.getElementById('emptyState');
+  const yearTabsContainer = document.getElementById('yearTabsContainer');
+  const yearTabsButtons = document.getElementById('yearTabsButtons');
 
   // Color Palette
   const colorPalette: Record<string, { bg: string; text: string; border: string }> = {
@@ -219,6 +239,87 @@ import MainLayout from '../../layouts/MainLayout.astro';
     }
   }
 
+  // Load Year Tabs
+  async function loadYearTabs() {
+    try {
+      const { data, error } = await supabase
+        .from('dashboard_year_tabs')
+        .select('*')
+        .eq('is_active', true)
+        .order('position');
+
+      if (error) throw error;
+
+      yearTabs = data || [];
+
+      if (yearTabs.length > 0) {
+        if (yearTabsContainer) yearTabsContainer.classList.remove('hidden');
+        
+        // Auto-select default tab
+        const defaultTab = yearTabs.find((t: any) => t.is_default);
+        selectedYearTabId = defaultTab?.id || yearTabs[0].id;
+
+        renderYearTabs();
+      }
+    } catch (err) {
+      console.error('Error loading year tabs:', err);
+    }
+  }
+
+  // Render Year Tabs
+  function renderYearTabs() {
+    if (!yearTabsButtons) return;
+
+    yearTabsButtons.innerHTML = '';
+
+    yearTabs.forEach((tab: any) => {
+      const btn = document.createElement('button');
+      const isSelected = tab.id === selectedYearTabId;
+      const boxCount = allBoxes.filter((b: any) => b.year_tab_id === tab.id).length;
+
+      btn.className = isSelected
+        ? 'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25 scale-105 transition-all duration-300'
+        : 'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white transition-all duration-300';
+
+      btn.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <span>${tab.label || `ปี ${tab.year}`}</span>
+        ${tab.is_default ? '<span class="px-1.5 py-0.5 text-[10px] rounded-full bg-white/20">Default</span>' : ''}
+        <span class="text-xs opacity-60">(${boxCount})</span>
+      `;
+
+      btn.addEventListener('click', () => {
+        selectedYearTabId = tab.id;
+        renderYearTabs();
+        renderFilteredBoxes();
+      });
+
+      yearTabsButtons.appendChild(btn);
+    });
+  }
+
+  // Render filtered boxes based on selected year tab
+  function renderFilteredBoxes() {
+    let filtered: any[];
+    
+    if (yearTabs.length > 0 && selectedYearTabId) {
+      filtered = allBoxes.filter((b: any) => b.year_tab_id === selectedYearTabId);
+    } else {
+      // No year tabs exist - show all boxes (backward compatible)
+      filtered = allBoxes;
+    }
+
+    if (filtered.length === 0) {
+      if (emptyState) emptyState.classList.remove('hidden');
+    } else {
+      if (emptyState) emptyState.classList.add('hidden');
+    }
+
+    renderDashboardBoxes(filtered);
+  }
+
   // Load Dashboard Content
   async function loadDashboard() {
     if (loadingState) loadingState.classList.remove('hidden');
@@ -236,14 +337,18 @@ import MainLayout from '../../layouts/MainLayout.astro';
       if (error) throw error;
 
       if (!boxes || boxes.length === 0) {
+        allBoxes = [];
+        await loadYearTabs();
         if (emptyState) emptyState.classList.remove('hidden');
         return;
       }
 
       // Filter menu items based on permissions (if not superuser)
-      const filteredBoxes = await filterMenuItemsByPermission(boxes);
+      allBoxes = await filterMenuItemsByPermission(boxes);
       
-      renderDashboardBoxes(filteredBoxes);
+      // Load year tabs and render
+      await loadYearTabs();
+      renderFilteredBoxes();
     } catch (err) {
       console.error('Error loading dashboard:', err);
       if (loadingState) loadingState.classList.add('hidden');

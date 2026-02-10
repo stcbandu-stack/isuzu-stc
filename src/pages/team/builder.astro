@@ -111,12 +111,12 @@ import DashboardBoxManager from '../../components/team/DashboardBoxManager.vue';
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
               <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </div>
             <div>
-              <p class="text-sm text-gray-400">สถานะ</p>
-              <p id="roleStatus" class="text-lg font-bold text-purple-400">Superuser</p>
+              <p class="text-sm text-gray-400">จำนวนแท็บปี</p>
+              <p id="yearTabCount" class="text-2xl font-bold text-white">-</p>
             </div>
           </div>
         </div>
@@ -146,6 +146,7 @@ import DashboardBoxManager from '../../components/team/DashboardBoxManager.vue';
   const loadingState = document.getElementById('loadingState');
   const boxCountEl = document.getElementById('boxCount');
   const menuCountEl = document.getElementById('menuCount');
+  const yearTabCountEl = document.getElementById('yearTabCount');
 
   async function init() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -184,8 +185,13 @@ import DashboardBoxManager from '../../components/team/DashboardBoxManager.vue';
       .from('dashboard_menu_items')
       .select('id');
 
+    const { data: yearTabsData } = await supabase
+      .from('dashboard_year_tabs')
+      .select('id');
+
     if (boxCountEl) boxCountEl.textContent = String(boxes?.length || 0);
     if (menuCountEl) menuCountEl.textContent = String(menuItems?.length || 0);
+    if (yearTabCountEl) yearTabCountEl.textContent = String(yearTabsData?.length || 0);
   }
 
   if (logoutBtn) {
