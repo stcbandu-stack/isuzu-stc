@@ -196,14 +196,53 @@ const months = [
         "อื่นๆ": { color: "bg-gray-100 text-gray-800 border-gray-300", icon: "fa-question", label: "อื่นๆ" }
     };
     
-    // Default fallback style
     const defaultStatusStyle = { color: "bg-gray-100 text-gray-800 border-gray-300", icon: "fa-circle", label: "Unknown" };
 
-    // Function to get styles safely
     function getStatusStyle(status) {
         if (!status) return defaultStatusStyle;
         const normalizedStatus = status.trim();
         return statusConfig[normalizedStatus] || { ...defaultStatusStyle, label: normalizedStatus };
+    }
+
+    function getDownBucketKey(percent) {
+        if (percent === 0) return 'free';
+        if (percent > 0 && percent < 10) return 'low';
+        if (percent >= 10 && percent < 20) return 'normal';
+        if (percent >= 20 && percent < 40) return 'high';
+        return 'heavy';
+    }
+
+    function buildDownBucketsHTML(down) {
+        const buckets = [
+            { key: 'free', label: 'ฟรีดาวน์ (0%)', color: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
+            { key: 'low', label: 'ดาวน์น้อย (1-9%)', color: 'bg-sky-50 text-sky-800 border-sky-300' },
+            { key: 'normal', label: 'ทั่วไป (10-19%)', color: 'bg-indigo-50 text-indigo-800 border-indigo-300' },
+            { key: 'high', label: 'ดาวน์สูง (20-39%)', color: 'bg-amber-50 text-amber-800 border-amber-300' },
+            { key: 'heavy', label: 'ดาวน์หนัก (40% ขึ้นไป)', color: 'bg-rose-50 text-rose-800 border-rose-300' }
+        ];
+        let html = `
+            <div class="space-y-2 mb-6">
+                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-1 flex items-center gap-1">
+                    <i class="fa-solid fa-coins"></i> ช่วงดาวน์ (Dealer Down)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        `;
+        buckets.forEach(b => {
+            const value = down[b.key] || 0;
+            html += `
+                <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-xl border ${b.color} shadow-sm">
+                    <span class="font-semibold leading-tight pr-2">${b.label}</span>
+                    <span class="inline-flex items-center justify-center font-black bg-white/80 px-3 py-1 rounded-lg min-w-[32px] text-gray-900 shadow-sm text-sm">
+                        ${value}
+                    </span>
+                </div>
+            `;
+        });
+        html += `
+                </div>
+            </div>
+        `;
+        return html;
     }
 
     // Main Function
@@ -225,8 +264,7 @@ const months = [
         const result = await response.json();
         const records = result.records || [];
         
-        // Group data by branch for display
-        const groupedData = processData(records);
+        const groupedData = processData(records, month);
         
         renderDashboard(groupedData);
         loading.classList.add('hidden');
@@ -240,9 +278,16 @@ const months = [
       }
     };
 
-    function processData(records) {
+    function processData(records, month) {
         const branches = {};
-        const total = { totalCases: 0, status: {}, brands: {}, models: [] };
+        const total = {
+            totalCases: 0,
+            status: {},
+            brands: {},
+            models: [],
+            carryOver: 0,
+            downBuckets: { free: 0, low: 0, normal: 0, high: 0, heavy: 0 }
+        };
         
         const branchMapping = {
             "โอมาฯ": "โอมาคาเสะ",
@@ -251,7 +296,6 @@ const months = [
             "car4u": "Car4U"
         };
         
-        // Helper to update models array
         const updateModels = (modelsArr, brand, model) => {
             const existing = modelsArr.find(m => m.brand === brand && m.model === model);
             if (existing) {
@@ -261,12 +305,13 @@ const months = [
             }
         };
 
-        // Helper to init branch stats
         const initStats = () => ({
             totalCases: 0,
             status: {},
             brands: {},
-            models: []
+            models: [],
+            carryOver: 0,
+            downBuckets: { free: 0, low: 0, normal: 0, high: 0, heavy: 0 }
         });
 
         records.forEach(record => {
@@ -277,26 +322,37 @@ const months = [
 
             if (!branches[branchName]) branches[branchName] = initStats();
             
-            // Extract vehicle info
             const brand = (record.car_brand || 'Unspecified').trim();
             const model = (record.car_model || 'Unspecified').trim();
-
-            // Count for branch
-            branches[branchName].totalCases++;
             const status = record.case_status || 'อื่นๆ';
+            const sendMonth = (record.case_send_month || '').trim();
+            const rawDown = (record.dealer_down || '').toString();
+            const downMatch = rawDown.match(/-?\d+(\.\d+)?/);
+            const downPercent = downMatch ? parseFloat(downMatch[0]) : null;
+
+            branches[branchName].totalCases++;
             branches[branchName].status[status] = (branches[branchName].status[status] || 0) + 1;
             
             branches[branchName].brands[brand] = (branches[branchName].brands[brand] || 0) + 1;
             updateModels(branches[branchName].models, brand, model);
             
-            // Count for total
             total.totalCases++;
             total.status[status] = (total.status[status] || 0) + 1;
             total.brands[brand] = (total.brands[brand] || 0) + 1;
             updateModels(total.models, brand, model);
+
+            if (sendMonth !== month) {
+                branches[branchName].carryOver++;
+                total.carryOver++;
+            }
+
+            if (downPercent !== null && !Number.isNaN(downPercent)) {
+                const bucketKey = getDownBucketKey(downPercent);
+                branches[branchName].downBuckets[bucketKey] = (branches[branchName].downBuckets[bucketKey] || 0) + 1;
+                total.downBuckets[bucketKey] = (total.downBuckets[bucketKey] || 0) + 1;
+            }
         });
 
-        // Sort models by count desc
         const sortModels = (stats) => {
             stats.models.sort((a, b) => b.count - a.count);
         };
@@ -334,13 +390,17 @@ const months = [
             const contentDiv = document.createElement('div');
             contentDiv.className = "p-4 space-y-5 bg-white relative z-0 rounded-b-2xl";
             
-            // Stats Grid (Redesigned)
             const statsHTML = `
-                <div class="text-center mb-6">
-                    <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-100 shadow-sm inline-block min-w-[150px]">
+                <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-100 shadow-sm text-center">
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">ยอดรวม</p>
                         <p class="text-5xl font-black text-gray-800 leading-none tracking-tight">${stats.totalCases}</p>
                         <p class="text-[10px] text-gray-400 mt-1">เคสทั้งหมด</p>
+                    </div>
+                    <div class="bg-purple-900 text-white p-4 rounded-xl border border-purple-700 shadow-sm text-center">
+                        <p class="text-xs text-purple-200 uppercase tracking-wider font-bold mb-1">ยอดยกมา</p>
+                        <p class="text-4xl font-black leading-none tracking-tight">${stats.carryOver || 0}</p>
+                        <p class="text-[10px] text-purple-200/80 mt-1">เคสที่ส่งจากเดือนอื่น</p>
                     </div>
                 </div>
 
@@ -365,7 +425,6 @@ const months = [
                 </div>
             `;
             
-            // Part 2: Brands & Models
             let vehicleHTML = `
                 <div class="bg-white p-0 rounded-xl">
                     <h3 class="font-bold text-gray-700 border-b pb-2 mb-3 text-xs flex items-center uppercase tracking-wider pl-1">
@@ -422,7 +481,8 @@ const months = [
              }
              vehicleHTML += `</tbody></table></div></div>`;
 
-            contentDiv.innerHTML = statsHTML + vehicleHTML;
+            const downBucketsHTML = buildDownBucketsHTML(stats.downBuckets || {});
+            contentDiv.innerHTML = statsHTML + downBucketsHTML + vehicleHTML;
             card.appendChild(headerDiv);
             card.appendChild(contentDiv);
             container.appendChild(card);
