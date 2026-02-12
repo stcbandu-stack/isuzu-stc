@@ -226,6 +226,52 @@ const months = [
         { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-400" }
     ];
 
+    function getDownBucketKey(percent) {
+        if (percent === 0) return 'free';
+        if (percent > 0 && percent < 10) return 'low';
+        if (percent >= 10 && percent < 20) return 'normal';
+        if (percent >= 20 && percent < 40) return 'high';
+        return 'heavy';
+    }
+
+    function buildDownBucketsHTML(down) {
+        const buckets = [
+            { key: 'free', label: 'ฟรีดาวน์ (0%)', hex: '#c1272d', bg: 'rgba(193,39,45,0.06)' },
+            { key: 'low', label: 'ดาว์นน้อย (1-9%)', hex: '#ff6f1f', bg: 'rgba(255,111,31,0.06)' },
+            { key: 'normal', label: 'ทั่วไป (10-19%)', hex: '#fbb03b', bg: 'rgba(251,176,59,0.06)' },
+            { key: 'high', label: 'ดาวน์สูง (20-39%)', hex: '#662d91', bg: 'rgba(102,45,145,0.06)' },
+            { key: 'heavy', label: 'ดาวน์หนัก (40% ขึ้นไป)', hex: '#22b573', bg: 'rgba(34,181,115,0.06)' }
+        ];
+        const data = down || {};
+        let html = `
+            <div class="mt-4">
+                <h3 class="font-bold text-gray-800 border-b-2 border-gray-200 pb-1 mb-3 text-base flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    ช่วงดาวน์
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        `;
+        buckets.forEach(b => {
+            const value = data[b.key] || 0;
+            html += `
+                <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-xl border shadow-sm"
+                     style="background-color:${b.bg};border-color:${b.hex};">
+                    <span class="font-semibold leading-tight pr-2" style="color:${b.hex};">${b.label}</span>
+                    <span class="inline-flex items-center justify-center font-black bg-white/80 px-3 py-1 rounded-lg min-w-[32px] text-gray-900 shadow-sm text-sm">
+                        ${value}
+                    </span>
+                </div>
+            `;
+        });
+        html += `
+                </div>
+            </div>
+        `;
+        return html;
+    }
+
     // Main Function
     window.loadData = async function() {
       const loading = document.getElementById('loading');
@@ -376,8 +422,11 @@ const months = [
                 });
             }
             sourceHTML += `</div></div>`;
+
+            // Part 5: Down buckets
+            const downHTML = buildDownBucketsHTML(data.downBuckets || {});
             
-            // Part 5: Brands & Models
+            // Part 6: Brands & Models
             let vehicleHTML = `
                 <div class="mt-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
                     <h3 class="font-bold text-gray-700 border-b pb-1 mb-3 text-sm flex items-center">
@@ -435,9 +484,9 @@ const months = [
                      `;
                  });
              }
-             vehicleHTML += `</tbody></table></div></div>`;
+            vehicleHTML += `</tbody></table></div></div>`;
             
-            contentDiv.innerHTML = statsHTML + financeHTML + statusHTML + sourceHTML + vehicleHTML;
+            contentDiv.innerHTML = statsHTML + financeHTML + statusHTML + sourceHTML + downHTML + vehicleHTML;
             
             card.appendChild(headerDiv);
             card.appendChild(contentDiv);

@@ -57,6 +57,13 @@ interface BranchSummary {
   brands: Record<string, number>;
   models: Array<{brand: string, model: string, count: number}>;
   totalPrice: number;
+  downBuckets: {
+    free: number;
+    low: number;
+    normal: number;
+    high: number;
+    heavy: number;
+  };
 }
 
 // Mock data for testing
@@ -199,6 +206,7 @@ function createBranchSummary(): BranchSummary {
     brands: {},
     models: [],
     totalPrice: 0,
+    downBuckets: { free: 0, low: 0, normal: 0, high: 0, heavy: 0 },
   };
 }
 
@@ -250,6 +258,12 @@ function updateBranchSummary(stats: BranchSummary, record: BookingRecord) {
     if (existingModel) existingModel.count++;
     else stats.models.push({ brand, model: model || "-", count: 1 });
   }
+
+  if (record.car_price > 0 && record.down_payment >= 0) {
+    const percent = (record.down_payment / record.car_price) * 100;
+    const bucketKey = getDownBucketKey(percent);
+    stats.downBuckets[bucketKey] = (stats.downBuckets[bucketKey] || 0) + 1;
+  }
 }
 
 function getEmptySummary() {
@@ -263,4 +277,12 @@ function getEmptySummary() {
   });
   
   return summary;
+}
+
+function getDownBucketKey(percent: number): keyof BranchSummary["downBuckets"] {
+  if (percent === 0) return "free";
+  if (percent > 0 && percent < 10) return "low";
+  if (percent >= 10 && percent < 20) return "normal";
+  if (percent >= 20 && percent < 40) return "high";
+  return "heavy";
 }

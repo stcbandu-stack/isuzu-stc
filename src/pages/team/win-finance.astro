@@ -180,23 +180,25 @@ const months = [
   <script>
     // Configuration
     const statusConfig = {
-        "ส่งมอบแล้ว": { color: "bg-green-500 text-white border-green-700", icon: "fa-flag-checkered", label: "ส่งมอบแล้ว" },
-        "ผ่านแล้วรอปล่อย": { color: "bg-teal-100 text-teal-800 border-teal-400", icon: "fa-check-circle", label: "ผ่านแล้วรอปล่อย" },
-        "เซ็นแล้วรอตรวจสอบ / อนุมัติเบื้องต้น": { color: "bg-blue-100 text-blue-800 border-blue-400", icon: "fa-file-signature", label: "เซ็นแล้วรอตรวจสอบ" },
-        "รอเซ็นสัญญา": { color: "bg-indigo-100 text-indigo-800 border-indigo-400", icon: "fa-pen-fancy", label: "รอเซ็นสัญญา" },
-        "รอเอกสารครบ": { color: "bg-yellow-100 text-yellow-800 border-yellow-400", icon: "fa-file-invoice", label: "รอเอกสารครบ" },
-        "รอคนค้ำ": { color: "bg-amber-100 text-amber-800 border-amber-400", icon: "fa-user-friends", label: "รอคนค้ำ" },
-        "รอเงินดาวน์ครบ": { color: "bg-lime-100 text-lime-800 border-lime-400", icon: "fa-coins", label: "รอเงินดาวน์ครบ" },
-        "รอไฟแนนซ์": { color: "bg-cyan-100 text-cyan-800 border-cyan-400", icon: "fa-clock", label: "รอไฟแนนซ์" },
-        "จอง/ยังไม่ได้ส่งไฟแนนซ์": { color: "bg-gray-200 text-gray-700 border-gray-400", icon: "fa-bookmark", label: "จอง/ยังไม่ส่ง" },
-        "รีเจค": { color: "bg-red-600 text-white border-red-800", icon: "fa-ban", label: "รีเจค" },
-        "ไม่ผ่านเงื่อนไข / คุณสมบัติไม่ครบ": { color: "bg-red-100 text-red-800 border-red-400", icon: "fa-user-slash", label: "ไม่ผ่านเงื่อนไข" },
-        "ยกเลิกเคส": { color: "bg-gray-900 text-white border-gray-700", icon: "fa-times-circle", label: "ยกเลิกเคส" },
-        "ติดต่อไม่ได้": { color: "bg-rose-100 text-rose-800 border-rose-400", icon: "fa-phone-slash", label: "ติดต่อไม่ได้" },
-        "อื่นๆ": { color: "bg-gray-100 text-gray-800 border-gray-300", icon: "fa-question", label: "อื่นๆ" }
+        "รอเซ็นสัญญา": { bg: "#ff8498", fg: "#1f2933", border: "#ff8498", icon: "fa-pen-fancy", label: "รอเซ็นสัญญา" },
+        "เซ็นแล้วรอตรวจสอบ / อนุมัติเบื้องต้น": { bg: "#ff7400", fg: "#1f2933", border: "#ff7400", icon: "fa-file-signature", label: "เซ็นแล้วรอตรวจสอบ" },
+        "รอเอกสารครบ": { bg: "#bfe1f6", fg: "#1f2933", border: "#bfe1f6", icon: "fa-file-invoice", label: "รอเอกสารครบ" },
+        "รอเซ็นต์คนค้ำ": { bg: "#bfe1f6", fg: "#1f2933", border: "#bfe1f6", icon: "fa-user-friends", label: "รอเซ็นต์คนค้ำ" },
+        "ปรับเงื่อนไข/รอคุยลูกค้า": { bg: "#ffe5a0", fg: "#1f2933", border: "#ffe5a0", icon: "fa-sliders-h", label: "ปรับเงื่อนไข/รอคุยลูกค้า" },
+        "ส่งขออนุมัติเบื้องต้น/ยังไม่ได้เซ็นต์": { bg: "#c6dbe1", fg: "#1f2933", border: "#c6dbe1", icon: "fa-file-alt", label: "ส่งขออนุมัติเบื้องต้น" },
+        "รอลูกค้าตัดสินใจ/ยังไม่ได้เซ็นต์": { bg: "#a2b4b9", fg: "#1f2933", border: "#a2b4b9", icon: "fa-user-clock", label: "รอลูกค้าตัดสินใจ" },
+        "ไม่ผ่านเงื่อนไข / คุณสมบัติไม่ครบ": { bg: "#ffd7bf", fg: "#1f2933", border: "#ffd7bf", icon: "fa-user-slash", label: "ไม่ผ่านเงื่อนไข" },
+        "ติดต่อไม่ได้": { bg: "#991d1d", fg: "#ffffff", border: "#991d1d", icon: "fa-phone-slash", label: "ติดต่อไม่ได้" },
+        "ยกเลิกเคส": { bg: "#f30000", fg: "#ffffff", border: "#f30000", icon: "fa-times-circle", label: "ยกเลิกเคส" },
+        "รีเจค": { bg: "#ea380b", fg: "#ffffff", border: "#ea380b", icon: "fa-ban", label: "รีเจค / ติดเครดิต" },
+        "รีเจค / ติดเครดิต": { bg: "#ea380b", fg: "#ffffff", border: "#ea380b", icon: "fa-ban", label: "รีเจค / ติดเครดิต" },
+        "รอรถปรับสภาพ/รอ PO": { bg: "#e8eaed", fg: "#1f2933", border: "#e8eaed", icon: "fa-truck-loading", label: "รอรถปรับสภาพ/รอ PO" },
+        "ผ่านแล้วรอปล่อย": { bg: "#ffa900", fg: "#1f2933", border: "#ffa900", icon: "fa-check-circle", label: "ผ่านแล้วรอปล่อย" },
+        "ส่งมอบแล้ว": { bg: "#92ff0c", fg: "#1f2933", border: "#92ff0c", icon: "fa-flag-checkered", label: "ส่งมอบแล้ว" },
+        "อื่นๆ": { bg: "#e5e7eb", fg: "#111827", border: "#d1d5db", icon: "fa-question", label: "อื่นๆ" }
     };
     
-    const defaultStatusStyle = { color: "bg-gray-100 text-gray-800 border-gray-300", icon: "fa-circle", label: "Unknown" };
+    const defaultStatusStyle = { bg: "#e5e7eb", fg: "#111827", border: "#d1d5db", icon: "fa-circle", label: "Unknown" };
 
     function getStatusStyle(status) {
         if (!status) return defaultStatusStyle;
@@ -214,11 +216,11 @@ const months = [
 
     function buildDownBucketsHTML(down) {
         const buckets = [
-            { key: 'free', label: 'ฟรีดาวน์ (0%)', color: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
-            { key: 'low', label: 'ดาวน์น้อย (1-9%)', color: 'bg-sky-50 text-sky-800 border-sky-300' },
-            { key: 'normal', label: 'ทั่วไป (10-19%)', color: 'bg-indigo-50 text-indigo-800 border-indigo-300' },
-            { key: 'high', label: 'ดาวน์สูง (20-39%)', color: 'bg-amber-50 text-amber-800 border-amber-300' },
-            { key: 'heavy', label: 'ดาวน์หนัก (40% ขึ้นไป)', color: 'bg-rose-50 text-rose-800 border-rose-300' }
+            { key: 'free', label: 'ฟรีดาวน์ (0%)', hex: '#c1272d', bg: 'rgba(193,39,45,0.06)' },
+            { key: 'low', label: 'ดาวน์น้อย (1-9%)', hex: '#ff6f1f', bg: 'rgba(255,111,31,0.06)' },
+            { key: 'normal', label: 'ทั่วไป (10-19%)', hex: '#fbb03b', bg: 'rgba(251,176,59,0.06)' },
+            { key: 'high', label: 'ดาวน์สูง (20-39%)', hex: '#662d91', bg: 'rgba(102,45,145,0.06)' },
+            { key: 'heavy', label: 'ดาวน์หนัก (40% ขึ้นไป)', hex: '#22b573', bg: 'rgba(34,181,115,0.06)' }
         ];
         let html = `
             <div class="space-y-2 mb-6">
@@ -230,8 +232,9 @@ const months = [
         buckets.forEach(b => {
             const value = down[b.key] || 0;
             html += `
-                <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-xl border ${b.color} shadow-sm">
-                    <span class="font-semibold leading-tight pr-2">${b.label}</span>
+                <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-xl border shadow-sm"
+                     style="background-color:${b.bg};border-color:${b.hex};">
+                    <span class="font-semibold leading-tight pr-2" style="color:${b.hex};">${b.label}</span>
                     <span class="inline-flex items-center justify-center font-black bg-white/80 px-3 py-1 rounded-lg min-w-[32px] text-gray-900 shadow-sm text-sm">
                         ${value}
                     </span>
@@ -441,7 +444,8 @@ const months = [
                          .map(([status, count]) => {
                              const style = getStatusStyle(status);
                              return `
-                                <div class="flex justify-between items-center text-sm p-3 rounded-xl ${style.color} border-2 shadow-md hover:scale-[1.02] transition-all">
+                                <div class="flex justify-between items-center text-sm p-3 rounded-xl border-2 shadow-md hover:scale-[1.02] transition-all"
+                                     style="background-color:${style.bg};color:${style.fg};border-color:${style.border};">
                                     <div class="flex items-center gap-2 min-w-0">
                                         <i class="fa-solid ${style.icon} w-5 text-base text-center"></i>
                                         <span class="truncate font-bold leading-tight" title="${status}">${style.label}</span>
