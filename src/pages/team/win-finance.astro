@@ -375,6 +375,9 @@ const months = [
             const stats = branchKey === 'รวมทั้งหมด' ? data.total : data.branches[branchKey];
             if (stats.totalCases === 0 && branchKey !== 'รวมทั้งหมด') return; // Skip empty branches
             
+            const carryOver = stats.carryOver || 0;
+            const currentCases = Math.max(0, (stats.totalCases || 0) - carryOver);
+            
             const card = document.createElement('div');
             card.className = "card-width bg-white rounded-2xl shadow-xl flex flex-col border border-gray-200 flex-shrink-0 h-fit mb-4 hover:shadow-2xl transition-shadow duration-300";
             
@@ -391,7 +394,7 @@ const months = [
             contentDiv.className = "p-4 space-y-5 bg-white relative z-0 rounded-b-2xl";
             
             const statsHTML = `
-                <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-100 shadow-sm text-center">
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">ยอดรวม</p>
                         <p class="text-5xl font-black text-gray-800 leading-none tracking-tight">${stats.totalCases}</p>
@@ -399,8 +402,13 @@ const months = [
                     </div>
                     <div class="bg-purple-900 text-white p-4 rounded-xl border border-purple-700 shadow-sm text-center">
                         <p class="text-xs text-purple-200 uppercase tracking-wider font-bold mb-1">ยอดยกมา</p>
-                        <p class="text-4xl font-black leading-none tracking-tight">${stats.carryOver || 0}</p>
+                        <p class="text-4xl font-black leading-none tracking-tight">${carryOver}</p>
                         <p class="text-[10px] text-purple-200/80 mt-1">เคสที่ส่งจากเดือนอื่น</p>
+                    </div>
+                    <div class="bg-indigo-600 text-white p-4 rounded-xl border border-indigo-800 shadow-sm text-center">
+                        <p class="text-xs text-indigo-100 uppercase tracking-wider font-bold mb-1">ยอดปัจจุบัน</p>
+                        <p class="text-4xl font-black leading-none tracking-tight">${currentCases}</p>
+                        <p class="text-[10px] text-indigo-100/80 mt-1">เคสของเดือนนี้</p>
                     </div>
                 </div>
 
