@@ -211,8 +211,8 @@ const months = [
                 </svg>
               </div>
               <div>
-                <h1 class="text-xl font-extrabold text-white tracking-tight">ติดตามลูกค้าจากสื่อออนไลน์ รถมือ 2 ปี 2569</h1>
-                <p class="text-sm text-white/60">Used Car Online Customer Tracking Dashboard</p>
+                <h1 class="text-xl font-extrabold text-white tracking-tight">ติดตามลูกค้าจาก เพจ Omakase เชียงราย 2569</h1>
+                <p class="text-sm text-white/60">OMAKASE CAR FB Online Customer Tracking Dashboard</p>
               </div>
             </div>
           </div>
@@ -359,24 +359,24 @@ const months = [
 
   <script is:inline>
     const gradeColors = {
-      'A': { bg: 'from-red-600 to-red-700', text: 'text-white' },
-      'B': { bg: 'from-slate-700 to-slate-800', text: 'text-white' },
-      'C': { bg: 'from-gray-700 to-gray-800', text: 'text-white' },
-      'D': { bg: 'from-neutral-700 to-neutral-800', text: 'text-white' },
-      'F': { bg: 'from-black to-red-900', text: 'text-white' },
+      'A': { bg: 'from-emerald-500 to-emerald-600', text: 'text-white' },
+      'B': { bg: 'from-blue-500 to-blue-600', text: 'text-white' },
+      'C': { bg: 'from-amber-500 to-amber-600', text: 'text-white' },
+      'D': { bg: 'from-orange-500 to-orange-600', text: 'text-white' },
+      'F': { bg: 'from-red-500 to-red-600', text: 'text-white' },
     };
     
     const statusColors = [
-      { bg: 'from-red-600 to-red-700' },
-      { bg: 'from-slate-700 to-slate-800' },
-      { bg: 'from-gray-700 to-gray-800' },
-      { bg: 'from-zinc-700 to-zinc-800' },
-      { bg: 'from-neutral-700 to-neutral-800' },
-      { bg: 'from-rose-600 to-rose-700' },
-      { bg: 'from-red-500 to-rose-500' },
-      { bg: 'from-black to-slate-900' },
-      { bg: 'from-slate-900 to-red-800' },
-      { bg: 'from-gray-900 to-red-700' },
+      { bg: 'from-blue-500 to-blue-600' },
+      { bg: 'from-emerald-500 to-emerald-600' },
+      { bg: 'from-amber-500 to-amber-600' },
+      { bg: 'from-purple-500 to-purple-600' },
+      { bg: 'from-pink-500 to-pink-600' },
+      { bg: 'from-cyan-500 to-cyan-600' },
+      { bg: 'from-orange-500 to-orange-600' },
+      { bg: 'from-rose-500 to-rose-600' },
+      { bg: 'from-teal-500 to-teal-600' },
+      { bg: 'from-indigo-500 to-indigo-600' },
     ];
     
     const provinceColors = [
@@ -680,19 +680,19 @@ const months = [
         if (hasTimeData) {
           percentFromAvg = overallAvg > 0 ? Math.round((avgMin / overallAvg) * 100) : 100;
           
-          bgColor = 'from-red-600 to-red-700';
+          bgColor = 'from-emerald-500 to-emerald-600';
           label = 'เร็วมาก';
-          if (percentFromAvg > 50 && percentFromAvg <= 80) { bgColor = 'from-rose-600 to-rose-700'; label = 'เร็ว'; }
-          else if (percentFromAvg > 80 && percentFromAvg <= 100) { bgColor = 'from-slate-700 to-slate-800'; label = 'ปกติ'; }
-          else if (percentFromAvg > 100 && percentFromAvg <= 150) { bgColor = 'from-amber-600 to-amber-700'; label = 'ช้ากว่าเฉลี่ย'; }
-          else if (percentFromAvg > 150 && percentFromAvg <= 200) { bgColor = 'from-orange-600 to-orange-700'; label = 'ช้า'; }
-          else if (percentFromAvg > 200) { bgColor = 'from-black to-red-800'; label = 'ช้ามาก'; }
+          if (percentFromAvg > 50 && percentFromAvg <= 80) { bgColor = 'from-green-500 to-green-600'; label = 'เร็ว'; }
+          else if (percentFromAvg > 80 && percentFromAvg <= 100) { bgColor = 'from-teal-500 to-teal-600'; label = 'ปกติ'; }
+          else if (percentFromAvg > 100 && percentFromAvg <= 150) { bgColor = 'from-amber-500 to-amber-600'; label = 'ช้ากว่าเฉลี่ย'; }
+          else if (percentFromAvg > 150 && percentFromAvg <= 200) { bgColor = 'from-orange-500 to-orange-600'; label = 'ช้า'; }
+          else if (percentFromAvg > 200) { bgColor = 'from-red-500 to-red-600'; label = 'ช้ามาก'; }
           
           const hours = Math.floor(avgMin / 60);
           const mins = Math.round(avgMin % 60);
           timeDisplay = hours > 0 ? `${hours} ชม. ${mins} นาที` : `${mins} นาที`;
         } else {
-          bgColor = 'from-gray-700 to-gray-800';
+          bgColor = 'from-gray-500 to-gray-600';
           label = 'รอข้อมูล';
           timeDisplay = 'ยังไม่มีข้อมูล';
           percentFromAvg = '-';
@@ -790,4 +790,3 @@ const months = [
     });
   </script>
 </MainLayout>
-
