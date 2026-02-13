@@ -271,10 +271,10 @@ const months = [
     function buildDownBucketsHTML(down) {
         const buckets = [
             { key: 'free', label: 'ฟรีดาวน์ (0%)', hex: '#c1272d', bg: 'rgba(193,39,45,0.06)' },
-            { key: 'low', label: 'ดาว์นน้อย (1-9%)', hex: '#ff6f1f', bg: 'rgba(255,111,31,0.06)' },
-            { key: 'normal', label: 'ทั่วไป (10-19%)', hex: '#fbb03b', bg: 'rgba(251,176,59,0.06)' },
-            { key: 'high', label: 'ดาวน์สูง (20-39%)', hex: '#662d91', bg: 'rgba(102,45,145,0.06)' },
-            { key: 'heavy', label: 'ดาวน์หนัก (40% ขึ้นไป)', hex: '#22b573', bg: 'rgba(34,181,115,0.06)' }
+            { key: 'low', label: 'ดาวน์ 1-9%', hex: '#ff6f1f', bg: 'rgba(255,111,31,0.06)' },
+            { key: 'normal', label: 'ดาวน์ 10-19%', hex: '#fbb03b', bg: 'rgba(251,176,59,0.06)' },
+            { key: 'high', label: 'ดาวน์ 20-39%', hex: '#662d91', bg: 'rgba(102,45,145,0.06)' },
+            { key: 'heavy', label: 'ดาวน์ 40% ขึ้นไป', hex: '#22b573', bg: 'rgba(34,181,115,0.06)' }
         ];
         const data = down || {};
         let html = `
